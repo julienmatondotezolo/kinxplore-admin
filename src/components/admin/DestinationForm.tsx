@@ -1,0 +1,310 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Destination, CategoryAssignment } from "@/lib/api";
+import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
+import { Loader2, Plus, X } from "lucide-react";
+
+interface DestinationFormProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: any) => void;
+  destination?: Destination | null;
+  isLoading?: boolean;
+}
+
+export function DestinationForm({
+  open,
+  onClose,
+  onSubmit,
+  destination,
+  isLoading,
+}: DestinationFormProps) {
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    image: "",
+    price: 0,
+    location: "",
+    ratings: 0,
+  });
+
+  const [categories, setCategories] = useState<CategoryAssignment[]>([]);
+  const [selectedParent, setSelectedParent] = useState<string>("");
+
+  const { data: parentCategories } = useParentCategories();
+  const { data: subcategories } = useSubcategories(selectedParent);
+
+  useEffect(() => {
+    if (destination) {
+      setFormData({
+        name: destination.name,
+        description: destination.description || "",
+        image: destination.image || "",
+        price: destination.price || 0,
+        location: destination.location || "",
+        ratings: destination.ratings || 0,
+      });
+
+      // Convert categories to CategoryAssignment format
+      const cats: CategoryAssignment[] = destination.categories.map((cat) => ({
+        parent_category_id: cat.parent.id,
+        subcategory_id: cat.subcategory?.id,
+      }));
+      setCategories(cats);
+    } else {
+      // Reset form
+      setFormData({
+        name: "",
+        description: "",
+        image: "",
+        price: 0,
+        location: "",
+        ratings: 0,
+      });
+      setCategories([]);
+    }
+  }, [destination, open]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({
+      ...formData,
+      category_ids: categories,
+    });
+  };
+
+  const addCategory = () => {
+    if (selectedParent) {
+      setCategories([
+        ...categories,
+        {
+          parent_category_id: selectedParent,
+        },
+      ]);
+      setSelectedParent("");
+    }
+  };
+
+  const removeCategory = (index: number) => {
+    setCategories(categories.filter((_, i) => i !== index));
+  };
+
+  const updateCategorySubcategory = (index: number, subcategoryId: string) => {
+    const updated = [...categories];
+    updated[index].subcategory_id = subcategoryId || undefined;
+    setCategories(updated);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {destination ? "Edit Destination" : "Create New Destination"}
+          </DialogTitle>
+          <DialogDescription>
+            {destination
+              ? "Update the destination information below."
+              : "Fill in the details to create a new destination."}
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid gap-4">
+            {/* Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Name *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+                placeholder="Enter destination name"
+              />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                placeholder="Enter destination description"
+                rows={4}
+              />
+            </div>
+
+            {/* Image URL */}
+            <div className="space-y-2">
+              <Label htmlFor="image">Image URL</Label>
+              <Input
+                id="image"
+                value={formData.image}
+                onChange={(e) =>
+                  setFormData({ ...formData, image: e.target.value })
+                }
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) =>
+                  setFormData({ ...formData, location: e.target.value })
+                }
+                placeholder="Enter location"
+              />
+            </div>
+
+            {/* Price and Ratings */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="price">Price ($)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      price: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ratings">Ratings (0-5)</Label>
+                <Input
+                  id="ratings"
+                  type="number"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  value={formData.ratings}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      ratings: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Categories */}
+            <div className="space-y-3">
+              <Label>Categories</Label>
+
+              {/* Existing categories */}
+              <div className="space-y-2">
+                {categories.map((cat, index) => {
+                  const parent = parentCategories?.find(
+                    (p) => p.id === cat.parent_category_id
+                  );
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 p-3 rounded-lg border bg-muted/50"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{parent?.name}</p>
+                        {cat.subcategory_id && (
+                          <select
+                            value={cat.subcategory_id}
+                            onChange={(e) =>
+                              updateCategorySubcategory(index, e.target.value)
+                            }
+                            className="mt-1 text-xs w-full rounded border bg-background px-2 py-1"
+                          >
+                            <option value="">No subcategory</option>
+                            {subcategories
+                              ?.filter(
+                                (s) => s.parent_category_id === cat.parent_category_id
+                              )
+                              .map((sub) => (
+                                <option key={sub.id} value={sub.id}>
+                                  {sub.name}
+                                </option>
+                              ))}
+                          </select>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeCategory(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Add new category */}
+              <div className="flex gap-2">
+                <select
+                  value={selectedParent}
+                  onChange={(e) => setSelectedParent(e.target.value)}
+                  className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">Select a category...</option>
+                  {parentCategories?.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addCategory}
+                  disabled={!selectedParent}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {destination ? "Update" : "Create"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
