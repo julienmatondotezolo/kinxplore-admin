@@ -14,6 +14,7 @@ import {
   MapPin,
   DollarSign,
   Star,
+  RotateCcw,
 } from "lucide-react";
 
 interface DestinationsTableProps {
@@ -22,6 +23,8 @@ interface DestinationsTableProps {
   onDelete: (destination: Destination) => void;
   onCreate: () => void;
   onViewHistory: (destination: Destination) => void;
+  onReactivate: (destination: Destination) => void;
+  isReactivating?: boolean;
 }
 
 export function DestinationsTable({
@@ -30,6 +33,8 @@ export function DestinationsTable({
   onDelete,
   onCreate,
   onViewHistory,
+  onReactivate,
+  isReactivating = false,
 }: DestinationsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -95,10 +100,12 @@ export function DestinationsTable({
                   </td>
                 </tr>
               ) : (
-                filteredDestinations.map((destination) => (
+                filteredDestinations.map((destination) => {
+                  const isInactive = destination.status === 'inactive';
+                  return (
                   <tr
                     key={destination.id}
-                    className="hover:bg-muted/30 transition-colors"
+                    className={`hover:bg-muted/30 transition-colors ${isInactive ? 'opacity-50 bg-muted/20' : ''}`}
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
@@ -106,11 +113,20 @@ export function DestinationsTable({
                           <img
                             src={destination.image}
                             alt={destination.name}
-                            className="w-12 h-12 rounded-lg object-cover"
+                            className={`w-12 h-12 rounded-lg object-cover ${isInactive ? 'grayscale' : ''}`}
                           />
                         )}
                         <div>
-                          <p className="font-medium">{destination.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className={`font-medium ${isInactive ? 'line-through text-muted-foreground' : ''}`}>
+                              {destination.name}
+                            </p>
+                            {isInactive && (
+                              <Badge variant="outline" className="text-xs text-muted-foreground">
+                                Inactive
+                              </Badge>
+                            )}
+                          </div>
                           {destination.description && (
                             <p className="text-sm text-muted-foreground line-clamp-1">
                               {destination.description}
@@ -149,35 +165,62 @@ export function DestinationsTable({
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onViewHistory(destination)}
-                          title="View History"
-                        >
-                          <History className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onEdit(destination)}
-                          title="Edit"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onDelete(destination)}
-                          className="text-destructive hover:text-destructive"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {isInactive ? (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onReactivate(destination)}
+                              className="gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
+                              title="Reactivate this destination"
+                              disabled={isReactivating}
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                              Reactivate
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onViewHistory(destination)}
+                              title="View History"
+                            >
+                              <History className="h-4 w-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onViewHistory(destination)}
+                              title="View History"
+                            >
+                              <History className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onEdit(destination)}
+                              title="Edit"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onDelete(destination)}
+                              className="text-destructive hover:text-destructive"
+                              title="Deactivate"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>

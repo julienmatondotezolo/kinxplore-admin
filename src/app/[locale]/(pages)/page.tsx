@@ -11,9 +11,11 @@ import {
   useCreateDestination,
   useUpdateDestination,
   useDeleteDestination,
+  useReactivateDestination,
 } from "@/hooks/useDestinations";
 import { Destination } from "@/lib/api";
-import { Loader2, Database, TrendingUp, MapPin, DollarSign } from "lucide-react";
+import { Loader2, Database, TrendingUp, MapPin, DollarSign, Layers } from "lucide-react";
+import { Link } from "@/navigation";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +41,7 @@ function AdminContent() {
   const createMutation = useCreateDestination();
   const updateMutation = useUpdateDestination();
   const deleteMutation = useDeleteDestination();
+  const reactivateMutation = useReactivateDestination();
 
   const handleCreate = () => {
     setSelectedDestination(null);
@@ -74,6 +77,10 @@ function AdminContent() {
     setHistoryOpen(true);
   };
 
+  const handleReactivate = (destination: Destination) => {
+    reactivateMutation.mutate({ id: destination.id, modifiedBy: "admin" });
+  };
+
   const handleSubmit = (data: any) => {
     if (selectedDestination) {
       updateMutation.mutate(
@@ -101,16 +108,17 @@ function AdminContent() {
     }
   };
 
-  // Calculate stats - with safe defaults
+  // Calculate stats - with safe defaults (only count active destinations)
   const safeDestinations = destinations || [];
-  const totalDestinations = safeDestinations.length;
+  const activeDestinations = safeDestinations.filter(d => d.status === 'active');
+  const totalDestinations = activeDestinations.length;
   const avgPrice =
     totalDestinations > 0
-      ? safeDestinations.reduce((sum, d) => sum + (d.price || 0), 0) / totalDestinations
+      ? activeDestinations.reduce((sum, d) => sum + (d.price || 0), 0) / totalDestinations
       : 0;
   const avgRating =
     totalDestinations > 0
-      ? safeDestinations.reduce((sum, d) => sum + (d.ratings || 0), 0) / totalDestinations
+      ? activeDestinations.reduce((sum, d) => sum + (d.ratings || 0), 0) / totalDestinations
       : 0;
 
   return (
@@ -134,6 +142,12 @@ function AdminContent() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/categories">
+              <Button variant="outline" className="gap-2">
+                <Layers className="h-4 w-4" />
+                Categories
+              </Button>
+            </Link>
             <ThemeToggle />
             <LanguageSwitcher />
           </div>
@@ -148,9 +162,12 @@ function AdminContent() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Total Destinations
+                  Active Destinations
                 </p>
                 <p className="text-3xl font-bold mt-2">{totalDestinations}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {safeDestinations.length - totalDestinations} inactive
+                </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
                 <MapPin className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -212,6 +229,8 @@ function AdminContent() {
               onDelete={handleDelete}
               onCreate={handleCreate}
               onViewHistory={handleViewHistory}
+              onReactivate={handleReactivate}
+              isReactivating={reactivateMutation.isPending}
             />
           )}
         </div>
@@ -238,14 +257,15 @@ function AdminContent() {
         destination={selectedDestination}
       />
 
-      {/* Delete Confirmation Dialog */}
+      {/* Deactivate Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Destination</DialogTitle>
+            <DialogTitle>Deactivate Destination</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{selectedDestination?.name}"? This
-              action cannot be undone, but the deletion will be archived.
+              Are you sure you want to deactivate "{selectedDestination?.name}"? 
+              The destination will be hidden from users but can be restored later. 
+              This action will be archived for record-keeping.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -263,7 +283,7 @@ function AdminContent() {
               {deleteMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Delete
+              Deactivate
             </Button>
           </DialogFooter>
         </DialogContent>

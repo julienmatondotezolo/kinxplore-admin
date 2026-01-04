@@ -62,7 +62,7 @@ export function ArchiveHistory({
   const renderHistoryEntry = (entry: ArchiveEntry) => (
     <div
       key={entry.id}
-      className="p-4 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+      className="p-4 rounded-lg border bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-2">

@@ -29,6 +29,7 @@ export interface Destination {
   price: number;
   location: string;
   ratings: number;
+  status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
   categories: CategoryInfo[];
@@ -81,23 +82,28 @@ export interface ArchiveResponse {
 export interface ParentCategory {
   id: string;
   name: string;
+  status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
+  subcategories?: Subcategory[];
 }
 
 export interface Subcategory {
   id: string;
   name: string;
   parent_category_id: string;
+  status: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
+  parent_categories?: ParentCategory;
 }
 
 // API Functions
 
 // Destinations
 export const getDestinations = async (): Promise<Destination[]> => {
-  const { data } = await api.get('/destinations');
+  // Use admin endpoint to get ALL destinations (including inactive)
+  const { data } = await api.get('/admin/destinations');
   return data;
 };
 
@@ -136,6 +142,16 @@ export const deleteDestination = async (
   });
 };
 
+export const reactivateDestination = async (
+  id: string,
+  modifiedBy?: string,
+): Promise<Destination> => {
+  const { data } = await api.put(`/admin/destinations/${id}/reactivate`, {}, {
+    params: { modified_by: modifiedBy },
+  });
+  return data;
+};
+
 export const getDestinationHistory = async (id: string): Promise<ArchiveEntry[]> => {
   const { data } = await api.get(`/admin/destinations/history/${id}`);
   return data;
@@ -153,13 +169,73 @@ export const getAllHistory = async (
 
 // Categories
 export const getParentCategories = async (): Promise<ParentCategory[]> => {
-  const { data } = await api.get('/categories/parent');
+  const { data } = await api.get('/categories');
   return data;
 };
 
 export const getSubcategories = async (parentId?: string): Promise<Subcategory[]> => {
-  const { data } = await api.get('/categories/subcategories', {
-    params: parentId ? { parent_id: parentId } : {},
+  if (!parentId) {
+    return [];
+  }
+  const { data } = await api.get(`/categories/${parentId}`);
+  return data.subcategories || [];
+};
+
+// Admin Category Management
+export const getAllParentCategories = async (): Promise<ParentCategory[]> => {
+  const { data } = await api.get('/admin/categories/parents');
+  return data;
+};
+
+export const getAllSubcategories = async (): Promise<Subcategory[]> => {
+  const { data } = await api.get('/admin/categories/subcategories');
+  return data;
+};
+
+export const createParentCategory = async (name: string): Promise<ParentCategory> => {
+  const { data } = await api.post('/admin/categories/parents', { name });
+  return data;
+};
+
+export const updateParentCategory = async (id: string, name: string): Promise<ParentCategory> => {
+  const { data } = await api.put(`/admin/categories/parents/${id}`, { name });
+  return data;
+};
+
+export const deleteParentCategory = async (id: string): Promise<void> => {
+  await api.delete(`/admin/categories/parents/${id}`);
+};
+
+export const reactivateParentCategory = async (id: string): Promise<ParentCategory> => {
+  const { data } = await api.put(`/admin/categories/parents/${id}/reactivate`);
+  return data;
+};
+
+export const createSubcategory = async (
+  name: string,
+  parent_category_id: string
+): Promise<Subcategory> => {
+  const { data } = await api.post('/admin/categories/subcategories', { name, parent_category_id });
+  return data;
+};
+
+export const updateSubcategory = async (
+  id: string,
+  name: string,
+  parent_category_id?: string
+): Promise<Subcategory> => {
+  const { data } = await api.put(`/admin/categories/subcategories/${id}`, {
+    name,
+    parent_category_id,
   });
+  return data;
+};
+
+export const deleteSubcategory = async (id: string): Promise<void> => {
+  await api.delete(`/admin/categories/subcategories/${id}`);
+};
+
+export const reactivateSubcategory = async (id: string): Promise<Subcategory> => {
+  const { data } = await api.put(`/admin/categories/subcategories/${id}/reactivate`);
   return data;
 };

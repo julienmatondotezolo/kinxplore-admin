@@ -5,6 +5,7 @@ import {
   createDestination,
   updateDestination,
   deleteDestination,
+  reactivateDestination,
   getDestinationHistory,
   getAllHistory,
   CreateDestinationDto,
@@ -83,10 +84,27 @@ export const useDeleteDestination = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['destinations'] });
       queryClient.invalidateQueries({ queryKey: ['archive'] });
-      toast.success('Destination deleted successfully');
+      toast.success('Destination deactivated successfully');
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.message || 'Failed to delete destination');
+      toast.error(error?.response?.data?.message || 'Failed to deactivate destination');
+    },
+  });
+};
+
+export const useReactivateDestination = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, modifiedBy }: { id: string; modifiedBy?: string }) =>
+      reactivateDestination(id, modifiedBy),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['destinations'] });
+      queryClient.invalidateQueries({ queryKey: ['archive'] });
+      toast.success('Destination reactivated successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to reactivate destination');
     },
   });
 };
