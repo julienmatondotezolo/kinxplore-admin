@@ -21,6 +21,16 @@ export interface CategoryInfo {
   };
 }
 
+export interface OpeningHours {
+  monday?: string;
+  tuesday?: string;
+  wednesday?: string;
+  thursday?: string;
+  friday?: string;
+  saturday?: string;
+  sunday?: string;
+}
+
 export interface Destination {
   id: string;
   name: string;
@@ -30,6 +40,7 @@ export interface Destination {
   location: string;
   ratings: number;
   status: 'active' | 'inactive';
+  opening_hours?: OpeningHours | null;
   created_at: string;
   updated_at: string;
   categories: CategoryInfo[];
@@ -48,6 +59,7 @@ export interface CreateDestinationDto {
   location?: string;
   ratings?: number;
   category_ids?: CategoryAssignment[];
+  opening_hours?: OpeningHours;
 }
 
 export interface UpdateDestinationDto {
@@ -58,6 +70,7 @@ export interface UpdateDestinationDto {
   location?: string;
   ratings?: number;
   category_ids?: CategoryAssignment[];
+  opening_hours?: OpeningHours;
 }
 
 export interface ArchiveEntry {

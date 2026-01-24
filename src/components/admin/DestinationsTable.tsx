@@ -19,6 +19,7 @@ import {
 
 interface DestinationsTableProps {
   destinations: Destination[];
+  onView: (destination: Destination) => void;
   onEdit: (destination: Destination) => void;
   onDelete: (destination: Destination) => void;
   onCreate: () => void;
@@ -29,6 +30,7 @@ interface DestinationsTableProps {
 
 export function DestinationsTable({
   destinations,
+  onView,
   onEdit,
   onDelete,
   onCreate,
@@ -105,7 +107,8 @@ export function DestinationsTable({
                   return (
                   <tr
                     key={destination.id}
-                    className={`hover:bg-muted/30 transition-colors ${isInactive ? 'opacity-50 bg-muted/20' : ''}`}
+                    onClick={() => onView(destination)}
+                    className={`hover:bg-muted/30 transition-colors cursor-pointer ${isInactive ? 'opacity-50 bg-muted/20' : ''}`}
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
@@ -163,14 +166,17 @@ export function DestinationsTable({
                         {destination.ratings?.toFixed(1) || "0.0"}
                       </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
                         {isInactive ? (
                           <>
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => onReactivate(destination)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onReactivate(destination);
+                              }}
                               className="gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
                               title="Reactivate this destination"
                               disabled={isReactivating}
@@ -181,7 +187,10 @@ export function DestinationsTable({
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => onViewHistory(destination)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onViewHistory(destination);
+                              }}
                               title="View History"
                             >
                               <History className="h-4 w-4" />
@@ -192,7 +201,10 @@ export function DestinationsTable({
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => onViewHistory(destination)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onViewHistory(destination);
+                              }}
                               title="View History"
                             >
                               <History className="h-4 w-4" />
@@ -200,7 +212,10 @@ export function DestinationsTable({
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => onEdit(destination)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(destination);
+                              }}
                               title="Edit"
                             >
                               <Edit className="h-4 w-4" />
@@ -208,7 +223,10 @@ export function DestinationsTable({
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => onDelete(destination)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(destination);
+                              }}
                               className="text-destructive hover:text-destructive"
                               title="Deactivate"
                             >

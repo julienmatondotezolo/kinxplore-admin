@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { DestinationsTable } from "@/components/admin/DestinationsTable";
 import { DestinationForm } from "@/components/admin/DestinationForm";
+import { DestinationDetails } from "@/components/admin/DestinationDetails";
 import { ArchiveHistory } from "@/components/admin/ArchiveHistory";
 import {
   useDestinations,
@@ -32,6 +33,7 @@ const queryClient = new QueryClient();
 
 function AdminContent() {
   const [formOpen, setFormOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDestination, setSelectedDestination] =
@@ -48,8 +50,14 @@ function AdminContent() {
     setFormOpen(true);
   };
 
+  const handleView = (destination: Destination) => {
+    setSelectedDestination(destination);
+    setDetailsOpen(true);
+  };
+
   const handleEdit = (destination: Destination) => {
     setSelectedDestination(destination);
+    setDetailsOpen(false); // Close details if open
     setFormOpen(true);
   };
 
@@ -225,6 +233,7 @@ function AdminContent() {
           ) : (
             <DestinationsTable
               destinations={safeDestinations}
+              onView={handleView}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onCreate={handleCreate}
@@ -237,6 +246,18 @@ function AdminContent() {
       </main>
 
       {/* Modals */}
+      <DestinationDetails
+        open={detailsOpen}
+        onClose={() => {
+          setDetailsOpen(false);
+          setSelectedDestination(null);
+        }}
+        destination={selectedDestination}
+        onEdit={handleEdit}
+        onReactivate={handleReactivate}
+        isReactivating={reactivateMutation.isPending}
+      />
+
       <DestinationForm
         open={formOpen}
         onClose={() => {

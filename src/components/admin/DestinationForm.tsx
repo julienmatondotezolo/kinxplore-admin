@@ -13,9 +13,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Destination, CategoryAssignment } from "@/lib/api";
+import { Destination, CategoryAssignment, OpeningHours } from "@/lib/api";
 import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Plus, X, Clock } from "lucide-react";
 
 interface DestinationFormProps {
   open: boolean;
@@ -41,6 +41,16 @@ export function DestinationForm({
     ratings: 0,
   });
 
+  const [openingHours, setOpeningHours] = useState<OpeningHours>({
+    monday: "",
+    tuesday: "",
+    wednesday: "",
+    thursday: "",
+    friday: "",
+    saturday: "",
+    sunday: "",
+  });
+
   const [categories, setCategories] = useState<CategoryAssignment[]>([]);
   const [selectedParent, setSelectedParent] = useState<string>("");
 
@@ -58,6 +68,21 @@ export function DestinationForm({
         ratings: destination.ratings || 0,
       });
 
+      // Set opening hours
+      if (destination.opening_hours) {
+        setOpeningHours(destination.opening_hours);
+      } else {
+        setOpeningHours({
+          monday: "",
+          tuesday: "",
+          wednesday: "",
+          thursday: "",
+          friday: "",
+          saturday: "",
+          sunday: "",
+        });
+      }
+
       // Convert categories to CategoryAssignment format
       const cats: CategoryAssignment[] = destination.categories.map((cat) => ({
         parent_category_id: cat.parent.id,
@@ -74,15 +99,34 @@ export function DestinationForm({
         location: "",
         ratings: 0,
       });
+      setOpeningHours({
+        monday: "",
+        tuesday: "",
+        wednesday: "",
+        thursday: "",
+        friday: "",
+        saturday: "",
+        sunday: "",
+      });
       setCategories([]);
     }
   }, [destination, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Filter out empty opening hours
+    const filteredOpeningHours: OpeningHours = {};
+    Object.entries(openingHours).forEach(([day, hours]) => {
+      if (hours && hours.trim()) {
+        filteredOpeningHours[day as keyof OpeningHours] = hours.trim();
+      }
+    });
+
     onSubmit({
       ...formData,
       category_ids: categories,
+      opening_hours: Object.keys(filteredOpeningHours).length > 0 ? filteredOpeningHours : undefined,
     });
   };
 
@@ -213,6 +257,35 @@ export function DestinationForm({
                     })
                   }
                 />
+              </div>
+            </div>
+
+            {/* Opening Hours */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Label>Opening Hours</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Enter opening hours in format: "9:00-18:00" or "9:00-12:00, 14:00-18:00" (leave empty for closed)
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {(["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const).map((day) => (
+                  <div key={day} className="space-y-1">
+                    <Label htmlFor={day} className="text-xs capitalize">
+                      {day}
+                    </Label>
+                    <Input
+                      id={day}
+                      value={openingHours[day] || ""}
+                      onChange={(e) =>
+                        setOpeningHours({ ...openingHours, [day]: e.target.value })
+                      }
+                      placeholder="9:00-18:00"
+                      className="text-sm"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 
