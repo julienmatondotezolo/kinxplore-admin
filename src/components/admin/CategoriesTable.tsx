@@ -14,6 +14,9 @@ import {
   FolderTree,
   Tag,
   Layers,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 interface ParentCategory {
@@ -49,6 +52,10 @@ interface CategoriesTableProps {
   isReactivating?: boolean;
 }
 
+type ParentSortColumn = "name" | "subcategories" | "created" | null;
+type SubSortColumn = "name" | "parent" | "created" | null;
+type SortDirection = "asc" | "desc";
+
 export function CategoriesTable({
   parentCategories,
   subcategories,
@@ -64,7 +71,12 @@ export function CategoriesTable({
 }: CategoriesTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("parents");
+  const [parentSortColumn, setParentSortColumn] = useState<ParentSortColumn>(null);
+  const [subSortColumn, setSubSortColumn] = useState<SubSortColumn>(null);
+  const [parentSortDirection, setParentSortDirection] = useState<SortDirection>("asc");
+  const [subSortDirection, setSubSortDirection] = useState<SortDirection>("asc");
 
+  // Filter
   const filteredParents = parentCategories.filter((cat) =>
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -74,10 +86,103 @@ export function CategoriesTable({
     sub.parent_categories?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const activeParents = filteredParents.filter(c => c.status === 'active').length;
-  const inactiveParents = filteredParents.filter(c => c.status === 'inactive').length;
-  const activeSubs = filteredSubs.filter(c => c.status === 'active').length;
-  const inactiveSubs = filteredSubs.filter(c => c.status === 'inactive').length;
+  // Sort parents
+  const sortedParents = [...filteredParents].sort((a, b) => {
+    if (!parentSortColumn) return 0;
+    let compareResult = 0;
+
+    switch (parentSortColumn) {
+      case "name":
+        compareResult = a.name.localeCompare(b.name);
+        break;
+      case "subcategories":
+        compareResult = (a.subcategories?.length || 0) - (b.subcategories?.length || 0);
+        break;
+      case "created":
+        compareResult = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+    }
+
+    return parentSortDirection === "asc" ? compareResult : -compareResult;
+  });
+
+  // Sort subcategories
+  const sortedSubs = [...filteredSubs].sort((a, b) => {
+    if (!subSortColumn) return 0;
+    let compareResult = 0;
+
+    switch (subSortColumn) {
+      case "name":
+        compareResult = a.name.localeCompare(b.name);
+        break;
+      case "parent":
+        compareResult = (a.parent_categories?.name || "").localeCompare(b.parent_categories?.name || "");
+        break;
+      case "created":
+        compareResult = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+    }
+
+    return subSortDirection === "asc" ? compareResult : -compareResult;
+  });
+
+  // Handle sort for parents
+  const handleParentSort = (column: ParentSortColumn) => {
+    if (parentSortColumn === column) {
+      if (parentSortDirection === "asc") {
+        setParentSortDirection("desc");
+      } else {
+        setParentSortColumn(null);
+        setParentSortDirection("asc");
+      }
+    } else {
+      setParentSortColumn(column);
+      setParentSortDirection("asc");
+    }
+  };
+
+  // Handle sort for subcategories
+  const handleSubSort = (column: SubSortColumn) => {
+    if (subSortColumn === column) {
+      if (subSortDirection === "asc") {
+        setSubSortDirection("desc");
+      } else {
+        setSubSortColumn(null);
+        setSubSortDirection("asc");
+      }
+    } else {
+      setSubSortColumn(column);
+      setSubSortDirection("asc");
+    }
+  };
+
+  // Sort icons
+  const ParentSortIcon = ({ column }: { column: ParentSortColumn }) => {
+    if (parentSortColumn !== column) {
+      return <ArrowUpDown className="h-3 w-3 sm:h-4 sm:w-4 opacity-50" />;
+    }
+    return parentSortDirection === "asc" ? (
+      <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4" />
+    ) : (
+      <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4" />
+    );
+  };
+
+  const SubSortIcon = ({ column }: { column: SubSortColumn }) => {
+    if (subSortColumn !== column) {
+      return <ArrowUpDown className="h-3 w-3 sm:h-4 sm:w-4 opacity-50" />;
+    }
+    return subSortDirection === "asc" ? (
+      <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4" />
+    ) : (
+      <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4" />
+    );
+  };
+
+  const activeParents = sortedParents.filter(c => c.status === 'active').length;
+  const inactiveParents = sortedParents.filter(c => c.status === 'inactive').length;
+  const activeSubs = sortedSubs.filter(c => c.status === 'active').length;
+  const inactiveSubs = sortedSubs.filter(c => c.status === 'inactive').length;
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -160,12 +265,12 @@ export function CategoriesTable({
           <TabsTrigger value="parents" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
             <FolderTree className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden xs:inline">Parent Categories</span>
-            <span className="xs:hidden">Parents</span> ({filteredParents.length})
+            <span className="xs:hidden">Parents</span> ({sortedParents.length})
           </TabsTrigger>
           <TabsTrigger value="subcategories" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
             <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden xs:inline">Subcategories</span>
-            <span className="xs:hidden">Subs</span> ({filteredSubs.length})
+            <span className="xs:hidden">Subs</span> ({sortedSubs.length})
           </TabsTrigger>
         </TabsList>
 
@@ -176,15 +281,39 @@ export function CategoriesTable({
               <table className="w-full">
                 <thead className="bg-muted/50 border-b">
                   <tr>
-                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">Name</th>
-                    <th className="hidden sm:table-cell px-4 py-3 text-left text-sm font-semibold">Subcategories</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
+                      <button
+                        onClick={() => handleParentSort("name")}
+                        className="flex items-center gap-1 sm:gap-2 hover:text-primary transition-colors"
+                      >
+                        Name
+                        <ParentSortIcon column="name" />
+                      </button>
+                    </th>
+                    <th className="hidden sm:table-cell px-4 py-3 text-left text-sm font-semibold">
+                      <button
+                        onClick={() => handleParentSort("subcategories")}
+                        className="flex items-center gap-2 hover:text-primary transition-colors"
+                      >
+                        Subcategories
+                        <ParentSortIcon column="subcategories" />
+                      </button>
+                    </th>
                     <th className="hidden md:table-cell px-4 py-3 text-left text-sm font-semibold">Status</th>
-                    <th className="hidden lg:table-cell px-4 py-3 text-left text-sm font-semibold">Created</th>
+                    <th className="hidden lg:table-cell px-4 py-3 text-left text-sm font-semibold">
+                      <button
+                        onClick={() => handleParentSort("created")}
+                        className="flex items-center gap-2 hover:text-primary transition-colors"
+                      >
+                        Created
+                        <ParentSortIcon column="created" />
+                      </button>
+                    </th>
                     <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {filteredParents.length === 0 ? (
+                  {sortedParents.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                         {searchTerm
@@ -193,7 +322,7 @@ export function CategoriesTable({
                       </td>
                     </tr>
                   ) : (
-                    filteredParents.map((category) => {
+                    sortedParents.map((category) => {
                       const isInactive = category.status === 'inactive';
                       const subCount = category.subcategories?.length || 0;
                       return (
@@ -290,15 +419,39 @@ export function CategoriesTable({
               <table className="w-full">
                 <thead className="bg-muted/50 border-b">
                   <tr>
-                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">Name</th>
-                    <th className="hidden sm:table-cell px-4 py-3 text-left text-sm font-semibold">Parent Category</th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
+                      <button
+                        onClick={() => handleSubSort("name")}
+                        className="flex items-center gap-1 sm:gap-2 hover:text-primary transition-colors"
+                      >
+                        Name
+                        <SubSortIcon column="name" />
+                      </button>
+                    </th>
+                    <th className="hidden sm:table-cell px-4 py-3 text-left text-sm font-semibold">
+                      <button
+                        onClick={() => handleSubSort("parent")}
+                        className="flex items-center gap-2 hover:text-primary transition-colors"
+                      >
+                        Parent Category
+                        <SubSortIcon column="parent" />
+                      </button>
+                    </th>
                     <th className="hidden md:table-cell px-4 py-3 text-left text-sm font-semibold">Status</th>
-                    <th className="hidden lg:table-cell px-4 py-3 text-left text-sm font-semibold">Created</th>
+                    <th className="hidden lg:table-cell px-4 py-3 text-left text-sm font-semibold">
+                      <button
+                        onClick={() => handleSubSort("created")}
+                        className="flex items-center gap-2 hover:text-primary transition-colors"
+                      >
+                        Created
+                        <SubSortIcon column="created" />
+                      </button>
+                    </th>
                     <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {filteredSubs.length === 0 ? (
+                  {sortedSubs.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                         {searchTerm
@@ -307,7 +460,7 @@ export function CategoriesTable({
                       </td>
                     </tr>
                   ) : (
-                    filteredSubs.map((subcategory) => {
+                    sortedSubs.map((subcategory) => {
                       const isInactive = subcategory.status === 'inactive';
                       return (
                         <tr

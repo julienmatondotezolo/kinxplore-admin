@@ -15,6 +15,9 @@ import {
   DollarSign,
   Star,
   RotateCcw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 
 interface DestinationsTableProps {
@@ -28,6 +31,9 @@ interface DestinationsTableProps {
   isReactivating?: boolean;
 }
 
+type SortColumn = "name" | "location" | "price" | "rating" | null;
+type SortDirection = "asc" | "desc";
+
 export function DestinationsTable({
   destinations,
   onView,
@@ -39,13 +45,68 @@ export function DestinationsTable({
   isReactivating = false,
 }: DestinationsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState<SortColumn>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
+  // Filter destinations
   const filteredDestinations = destinations.filter(
     (dest) =>
       dest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dest.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dest.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Sort destinations
+  const sortedDestinations = [...filteredDestinations].sort((a, b) => {
+    if (!sortColumn) return 0;
+
+    let compareResult = 0;
+
+    switch (sortColumn) {
+      case "name":
+        compareResult = a.name.localeCompare(b.name);
+        break;
+      case "location":
+        compareResult = (a.location || "").localeCompare(b.location || "");
+        break;
+      case "price":
+        compareResult = (a.price || 0) - (b.price || 0);
+        break;
+      case "rating":
+        compareResult = (a.ratings || 0) - (b.ratings || 0);
+        break;
+    }
+
+    return sortDirection === "asc" ? compareResult : -compareResult;
+  });
+
+  // Handle column header click
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      // Toggle direction or reset
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else {
+        setSortColumn(null);
+        setSortDirection("asc");
+      }
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  // Render sort icon
+  const SortIcon = ({ column }: { column: SortColumn }) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-4 w-4 opacity-50" />;
+    }
+    return sortDirection === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -73,19 +134,43 @@ export function DestinationsTable({
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-semibold">
-                  Destination
+                  <button
+                    onClick={() => handleSort("name")}
+                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                  >
+                    Destination
+                    <SortIcon column="name" />
+                  </button>
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold">
-                  Location
+                  <button
+                    onClick={() => handleSort("location")}
+                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                  >
+                    Location
+                    <SortIcon column="location" />
+                  </button>
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold">
                   Categories
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold">
-                  Price
+                  <button
+                    onClick={() => handleSort("price")}
+                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                  >
+                    Price
+                    <SortIcon column="price" />
+                  </button>
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold">
-                  Rating
+                  <button
+                    onClick={() => handleSort("rating")}
+                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                  >
+                    Rating
+                    <SortIcon column="rating" />
+                  </button>
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-semibold">
                   Actions
@@ -93,7 +178,7 @@ export function DestinationsTable({
               </tr>
             </thead>
             <tbody className="divide-y">
-              {filteredDestinations.length === 0 ? (
+              {sortedDestinations.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                     {searchTerm
@@ -102,7 +187,7 @@ export function DestinationsTable({
                   </td>
                 </tr>
               ) : (
-                filteredDestinations.map((destination) => {
+                sortedDestinations.map((destination) => {
                   const isInactive = destination.status === 'inactive';
                   return (
                   <tr
@@ -248,8 +333,13 @@ export function DestinationsTable({
       {/* Stats */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <p>
-          Showing {filteredDestinations.length} of {destinations.length}{" "}
+          Showing {sortedDestinations.length} of {destinations.length}{" "}
           destinations
+          {sortColumn && (
+            <span className="ml-2 text-primary">
+              • Sorted by {sortColumn} ({sortDirection})
+            </span>
+          )}
         </p>
       </div>
     </div>
