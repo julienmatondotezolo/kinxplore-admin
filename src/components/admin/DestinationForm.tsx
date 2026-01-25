@@ -17,6 +17,46 @@ import { Destination, CategoryAssignment, OpeningHours } from "@/lib/api";
 import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
 import { Loader2, Plus, X, Clock } from "lucide-react";
 
+// Subcategory selector component that loads subcategories for a specific parent
+function SubcategorySelector({
+  parentCategoryId,
+  subcategoryId,
+  onChange,
+}: {
+  parentCategoryId: string;
+  subcategoryId?: string;
+  onChange: (value: string) => void;
+}) {
+  const { data: subcategories, isLoading } = useSubcategories(parentCategoryId);
+
+  if (isLoading) {
+    return (
+      <div className="mt-2 text-xs text-muted-foreground">Loading subcategories...</div>
+    );
+  }
+
+  if (!subcategories || subcategories.length === 0) {
+    return null;
+  }
+
+  return (
+    <select
+      value={subcategoryId || ""}
+      onChange={(e) => onChange(e.target.value)}
+      className="mt-2 text-xs w-full rounded-lg border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600 text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+    >
+      <option value="">No subcategory</option>
+      {subcategories
+        .filter((s) => s.parent_category_id === parentCategoryId)
+        .map((sub) => (
+          <option key={sub.id} value={sub.id}>
+            {sub.name}
+          </option>
+        ))}
+    </select>
+  );
+}
+
 interface DestinationFormProps {
   open: boolean;
   onClose: () => void;
@@ -55,7 +95,6 @@ export function DestinationForm({
   const [selectedParent, setSelectedParent] = useState<string>("");
 
   const { data: parentCategories } = useParentCategories();
-  const { data: subcategories } = useSubcategories(selectedParent);
 
   useEffect(() => {
     if (destination) {
@@ -115,6 +154,12 @@ export function DestinationForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate that at least one category is selected
+    if (categories.length === 0) {
+      alert("Please add at least one category to the destination.");
+      return;
+    }
+    
     // Filter out empty opening hours
     const filteredOpeningHours: OpeningHours = {};
     Object.entries(openingHours).forEach(([day, hours]) => {
@@ -150,6 +195,30 @@ export function DestinationForm({
     const updated = [...categories];
     updated[index].subcategory_id = subcategoryId || undefined;
     setCategories(updated);
+  };
+
+  const setAllDays24Hours = () => {
+    setOpeningHours({
+      monday: "00:00-23:59",
+      tuesday: "00:00-23:59",
+      wednesday: "00:00-23:59",
+      thursday: "00:00-23:59",
+      friday: "00:00-23:59",
+      saturday: "00:00-23:59",
+      sunday: "00:00-23:59",
+    });
+  };
+
+  const clearAllHours = () => {
+    setOpeningHours({
+      monday: "",
+      tuesday: "",
+      wednesday: "",
+      thursday: "",
+      friday: "",
+      saturday: "",
+      sunday: "",
+    });
   };
 
   return (
@@ -262,9 +331,31 @@ export function DestinationForm({
 
             {/* Opening Hours */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <Label>Opening Hours</Label>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Label>Opening Hours</Label>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={setAllDays24Hours}
+                    className="text-xs"
+                  >
+                    24/7
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={clearAllHours}
+                    className="text-xs"
+                  >
+                    Clear All
+                  </Button>
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Enter opening hours in format: "9:00-18:00" or "9:00-12:00, 14:00-18:00" (leave empty for closed)
@@ -291,7 +382,14 @@ export function DestinationForm({
 
             {/* Categories */}
             <div className="space-y-3">
-              <Label>Categories</Label>
+              <Label>
+                Categories <span className="text-red-500">*</span>
+              </Label>
+              {categories.length === 0 && (
+                <p className="text-xs text-red-500">
+                  At least one category is required
+                </p>
+              )}
 
               {/* Existing categories */}
               <div className="space-y-2">
@@ -306,26 +404,11 @@ export function DestinationForm({
                     >
                       <div className="flex-1">
                         <p className="text-sm font-medium">{parent?.name}</p>
-                        {cat.subcategory_id && (
-                          <select
-                            value={cat.subcategory_id}
-                            onChange={(e) =>
-                              updateCategorySubcategory(index, e.target.value)
-                            }
-                            className="mt-2 text-xs w-full rounded-lg border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600 text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                          >
-                            <option value="">No subcategory</option>
-                            {subcategories
-                              ?.filter(
-                                (s) => s.parent_category_id === cat.parent_category_id
-                              )
-                              .map((sub) => (
-                                <option key={sub.id} value={sub.id}>
-                                  {sub.name}
-                                </option>
-                              ))}
-                          </select>
-                        )}
+                        <SubcategorySelector
+                          parentCategoryId={cat.parent_category_id}
+                          subcategoryId={cat.subcategory_id}
+                          onChange={(value) => updateCategorySubcategory(index, value)}
+                        />
                       </div>
                       <Button
                         type="button"
