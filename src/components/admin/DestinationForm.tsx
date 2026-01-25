@@ -154,6 +154,27 @@ export function DestinationForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!formData.name || !formData.name.trim()) {
+      alert("Please enter a destination name.");
+      return;
+    }
+    
+    if (!formData.description || !formData.description.trim()) {
+      alert("Please enter a destination description.");
+      return;
+    }
+    
+    if (!formData.location || !formData.location.trim()) {
+      alert("Please enter a destination location.");
+      return;
+    }
+    
+    if (formData.price === undefined || formData.price === null || formData.price < 0) {
+      alert("Please enter a valid price (minimum 0).");
+      return;
+    }
+    
     // Validate that at least one category is selected
     if (categories.length === 0) {
       alert("Please add at least one category to the destination.");
@@ -253,13 +274,14 @@ export function DestinationForm({
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Description <span className="text-red-500">*</span></Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
+                required
                 placeholder="Enter destination description"
                 rows={4}
               />
@@ -280,13 +302,14 @@ export function DestinationForm({
 
             {/* Location */}
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">Location <span className="text-red-500">*</span></Label>
               <Input
                 id="location"
                 value={formData.location}
                 onChange={(e) =>
                   setFormData({ ...formData, location: e.target.value })
                 }
+                required
                 placeholder="Enter location"
               />
             </div>
@@ -294,7 +317,7 @@ export function DestinationForm({
             {/* Price and Ratings */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price">Price ($)</Label>
+                <Label htmlFor="price">Price ($) <span className="text-red-500">*</span></Label>
                 <Input
                   id="price"
                   type="number"
@@ -307,6 +330,7 @@ export function DestinationForm({
                       price: parseFloat(e.target.value) || 0,
                     })
                   }
+                  required
                 />
               </div>
 
