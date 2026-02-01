@@ -100,7 +100,7 @@ export function LanguageSwitcher() {
           
           {/* Menu */}
           <div className="absolute right-0 z-20 mt-2 w-56 origin-top-right animate-in fade-in zoom-in-95 slide-in-from-top-2">
-            <div className="overflow-hidden rounded-xl border border-border/50 bg-popover/95 shadow-2xl backdrop-blur-xl">
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl">
               {/* Menu items */}
               <div className="p-1.5">
                 {languages.map((lang) => {
