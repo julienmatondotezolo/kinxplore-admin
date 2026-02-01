@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 const queryClient = new QueryClient();
 
@@ -134,33 +135,7 @@ function AdminContent() {
       <Toaster position="top-right" richColors />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg">
-              <Database className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight">
-                Kinxplore Admin
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                Destination Management System
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/categories">
-              <Button variant="outline" className="gap-2">
-                <Layers className="h-4 w-4" />
-                Categories
-              </Button>
-            </Link>
-            <ThemeToggle />
-            <LanguageSwitcher />
-          </div>
-        </div>
-      </header>
+      <AdminHeader />
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8 space-y-8">

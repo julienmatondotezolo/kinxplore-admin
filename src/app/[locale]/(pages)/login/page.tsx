@@ -35,8 +35,13 @@ export default function LoginPage() {
             Kinxplore Admin
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Sign in to access the admin panel
+            Admin access only - Sign in to continue
           </p>
+          <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              🔒 This is an admin-only area. Only authorized administrators can access this panel.
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -88,12 +93,17 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-md bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Signing in...' : 'Sign In as Admin'}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          <p>Admin access only</p>
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Need admin access? Contact your system administrator.
+          </p>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
+            Account creation is disabled for security reasons.
+          </p>
         </div>
       </div>
     </div>
