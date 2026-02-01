@@ -18,6 +18,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ParentCategory {
   id: string;
@@ -501,7 +502,5 @@ export function CategoriesTable({
         </TabsContent>
       </Tabs>
     </div>
-  );
-}
   );
 }

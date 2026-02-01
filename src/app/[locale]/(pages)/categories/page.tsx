@@ -18,7 +18,7 @@ import {
   useReactivateSubcategory,
 } from "@/hooks/useCategoryManagement";
 import { ParentCategory } from "@/lib/api";
-import { Loader2, FolderTree, Tag, Layers, ArrowLeft, Home } from "lucide-react";
+import { Loader2, FolderTree, Tag, Layers, ArrowLeft, Home, Plus } from "lucide-react";
 import { Link } from "@/navigation";
 import {
   Dialog,
