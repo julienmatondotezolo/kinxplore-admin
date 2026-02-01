@@ -71,5 +71,71 @@
   },
   "LanguageSwitcher": {
     "label": "Language"
+  },
+  "bookings": {
+    "title": "Booking Management",
+    "subtitle": "Manage and track all destination bookings",
+    "newBookings": "new booking(s)",
+    "boardView": "Board View",
+    "listView": "List View",
+    "searchPlaceholder": "Search by guest name, email, or destination...",
+    "allPriorities": "All Priorities",
+    "noPendingBookings": "No pending bookings",
+    "noConfirmedBookings": "No confirmed bookings",
+    "noCompletedBookings": "No completed bookings",
+    "confirmDelete": "Are you sure you want to delete this booking? This action cannot be undone.",
+    "bookingDetails": "Booking Details",
+    "guestInformation": "Guest Information",
+    "guestName": "Guest Name",
+    "email": "Email",
+    "phone": "Phone",
+    "country": "Country",
+    "address": "Address",
+    "destination": "Destination",
+    "checkIn": "Check-in Date",
+    "checkOut": "Check-out Date",
+    "guests": "Number of Guests",
+    "totalPrice": "Total Price",
+    "specialRequests": "Special Requests",
+    "taskManagement": "Task Management",
+    "adminNotes": "Admin Notes",
+    "adminNotesPlaceholder": "Add internal notes about this booking...",
+    "metadata": "Metadata",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "lastStatusChange": "Last Status Change",
+    "deleteBooking": "Delete Booking",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "priority": {
+      "label": "Priority",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "stats": {
+      "total": "Total Bookings",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "revenue": "Total Revenue",
+      "today": "today",
+      "thisWeek": "this week",
+      "requiresAction": "Requires action"
+    }
+  },
+  "common": {
+    "refresh": "Refresh",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
   }
 }

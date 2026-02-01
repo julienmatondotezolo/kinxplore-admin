@@ -1,71 +1,60 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { Link } from '@/navigation';
-import { Database, Layers } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Search, Bell, Settings, Search as SearchIcon } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { LanguageSwitcher } from '@/components/ui/language-switcher';
 
 export default function AdminHeader() {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-      <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg">
-            <Database className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">
-              Kinxplore Admin
-            </h1>
-            <p className="text-xs text-muted-foreground">
-              Welcome back, {profile?.full_name || profile?.email?.split('@')[0] || 'Admin'}
-            </p>
+    <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-30 px-8 py-4">
+      <div className="flex items-center justify-between max-w-[1600px] mx-auto">
+        {/* Search Bar */}
+        <div className="flex-1 max-w-xl">
+          <div className="relative group">
+            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-black transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search products, orders, customers..." 
+              className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-2.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:bg-white focus:border-gray-200 transition-all"
+            />
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link href="/categories">
-            <Button variant="outline" className="gap-2">
-              <Layers className="h-4 w-4" />
-              Categories
-            </Button>
-          </Link>
-          <ThemeToggle />
-          <LanguageSwitcher />
-
-          <div className="flex items-center gap-3 pl-3 border-l border-border/40">
-            <div className="text-right hidden md:block">
-              <p className="text-sm font-medium">
-                {profile?.full_name || 'Admin'}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {profile?.email}
-              </p>
-            </div>
-
-            {profile?.avatar_url ? (
-              <img
-                src={profile.avatar_url}
-                alt={profile.full_name || 'Admin'}
-                className="h-10 w-10 rounded-full border-2 border-border"
-              />
-            ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white font-bold">
-                {profile?.full_name?.[0]?.toUpperCase() || profile?.email?.[0]?.toUpperCase() || 'A'}
+        {/* Actions */}
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
+          
+          <div className="flex items-center gap-4 pl-6 border-l border-gray-100">
+            <button className="relative p-2 text-gray-400 hover:text-black hover:bg-gray-50 rounded-xl transition-all">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-yellow-500 rounded-full border-2 border-white"></span>
+            </button>
+            
+            <div className="flex items-center gap-3 pl-2">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-bold text-gray-900 leading-none">
+                  {profile?.full_name || 'Sarah Johnson'}
+                </p>
+                <p className="text-[11px] font-medium text-gray-400 mt-1 uppercase tracking-wider">
+                  {profile?.role || 'Store Manager'}
+                </p>
               </div>
-            )}
-
-            <Button
-              onClick={signOut}
-              variant="destructive"
-              size="sm"
-            >
-              Sign Out
-            </Button>
+              <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden shadow-sm">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 font-bold">
+                    {profile?.full_name?.[0] || 'S'}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

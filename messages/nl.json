@@ -71,5 +71,71 @@
   },
   "LanguageSwitcher": {
     "label": "Taal"
+  },
+  "bookings": {
+    "title": "Boekingenbeheer",
+    "subtitle": "Beheer en volg alle bestemmingsboekingen",
+    "newBookings": "nieuwe boeking(en)",
+    "boardView": "Bordweergave",
+    "listView": "Lijstweergave",
+    "searchPlaceholder": "Zoeken op gastnaam, e-mail of bestemming...",
+    "allPriorities": "Alle Prioriteiten",
+    "noPendingBookings": "Geen openstaande boekingen",
+    "noConfirmedBookings": "Geen bevestigde boekingen",
+    "noCompletedBookings": "Geen voltooide boekingen",
+    "confirmDelete": "Weet u zeker dat u deze boeking wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "bookingDetails": "Boekingsdetails",
+    "guestInformation": "Gastinformatie",
+    "guestName": "Gastnaam",
+    "email": "E-mail",
+    "phone": "Telefoon",
+    "country": "Land",
+    "address": "Adres",
+    "destination": "Bestemming",
+    "checkIn": "Incheckdatum",
+    "checkOut": "Uitcheckdatum",
+    "guests": "Aantal Gasten",
+    "totalPrice": "Totale Prijs",
+    "specialRequests": "Speciale Verzoeken",
+    "taskManagement": "Taakbeheer",
+    "adminNotes": "Beheerdersnotities",
+    "adminNotesPlaceholder": "Voeg interne notities toe over deze boeking...",
+    "metadata": "Metadata",
+    "createdAt": "Aangemaakt op",
+    "updatedAt": "Bijgewerkt op",
+    "lastStatusChange": "Laatste Statuswijziging",
+    "deleteBooking": "Boeking Verwijderen",
+    "status": {
+      "pending": "In Behandeling",
+      "confirmed": "Bevestigd",
+      "completed": "Voltooid",
+      "cancelled": "Geannuleerd"
+    },
+    "priority": {
+      "label": "Prioriteit",
+      "low": "Laag",
+      "medium": "Gemiddeld",
+      "high": "Hoog",
+      "urgent": "Urgent"
+    },
+    "stats": {
+      "total": "Totaal Boekingen",
+      "pending": "In Behandeling",
+      "confirmed": "Bevestigd",
+      "completed": "Voltooid",
+      "revenue": "Totale Omzet",
+      "today": "vandaag",
+      "thisWeek": "deze week",
+      "requiresAction": "Vereist actie"
+    }
+  },
+  "common": {
+    "refresh": "Vernieuwen",
+    "save": "Wijzigingen Opslaan",
+    "saving": "Opslaan...",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "close": "Sluiten"
   }
 }

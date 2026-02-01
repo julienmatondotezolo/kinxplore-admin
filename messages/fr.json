@@ -71,5 +71,71 @@
   },
   "LanguageSwitcher": {
     "label": "Langue"
+  },
+  "bookings": {
+    "title": "Gestion des Réservations",
+    "subtitle": "Gérer et suivre toutes les réservations de destinations",
+    "newBookings": "nouvelle(s) réservation(s)",
+    "boardView": "Vue Tableau",
+    "listView": "Vue Liste",
+    "searchPlaceholder": "Rechercher par nom d'invité, email ou destination...",
+    "allPriorities": "Toutes les Priorités",
+    "noPendingBookings": "Aucune réservation en attente",
+    "noConfirmedBookings": "Aucune réservation confirmée",
+    "noCompletedBookings": "Aucune réservation terminée",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette réservation ? Cette action ne peut pas être annulée.",
+    "bookingDetails": "Détails de la Réservation",
+    "guestInformation": "Informations sur l'Invité",
+    "guestName": "Nom de l'Invité",
+    "email": "Email",
+    "phone": "Téléphone",
+    "country": "Pays",
+    "address": "Adresse",
+    "destination": "Destination",
+    "checkIn": "Date d'Arrivée",
+    "checkOut": "Date de Départ",
+    "guests": "Nombre d'Invités",
+    "totalPrice": "Prix Total",
+    "specialRequests": "Demandes Spéciales",
+    "taskManagement": "Gestion des Tâches",
+    "adminNotes": "Notes Administrateur",
+    "adminNotesPlaceholder": "Ajouter des notes internes sur cette réservation...",
+    "metadata": "Métadonnées",
+    "createdAt": "Créé le",
+    "updatedAt": "Mis à jour le",
+    "lastStatusChange": "Dernier Changement de Statut",
+    "deleteBooking": "Supprimer la Réservation",
+    "status": {
+      "pending": "En Attente",
+      "confirmed": "Confirmé",
+      "completed": "Terminé",
+      "cancelled": "Annulé"
+    },
+    "priority": {
+      "label": "Priorité",
+      "low": "Faible",
+      "medium": "Moyenne",
+      "high": "Haute",
+      "urgent": "Urgent"
+    },
+    "stats": {
+      "total": "Total des Réservations",
+      "pending": "En Attente",
+      "confirmed": "Confirmé",
+      "completed": "Terminé",
+      "revenue": "Revenu Total",
+      "today": "aujourd'hui",
+      "thisWeek": "cette semaine",
+      "requiresAction": "Nécessite une action"
+    }
+  },
+  "common": {
+    "refresh": "Actualiser",
+    "save": "Enregistrer les Modifications",
+    "saving": "Enregistrement...",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer"
   }
 }
