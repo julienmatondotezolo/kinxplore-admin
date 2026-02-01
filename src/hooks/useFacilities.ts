@@ -8,6 +8,7 @@ export interface Facility {
   icon?: string;
   description?: string;
   category_id?: string;
+  status?: 'active' | 'inactive';
   created_at?: string;
   updated_at?: string;
 }
@@ -88,6 +89,26 @@ export const useDeleteFacility = () => {
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || 'Failed to delete facility');
+    },
+  });
+};
+
+// Toggle facility status (enable/disable)
+export const useToggleFacilityStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: 'active' | 'inactive' }) => {
+      const { data } = await api.patch<Facility>(`/facilities/${id}`, { status });
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['facilities'] });
+      const statusText = data.status === 'active' ? 'enabled' : 'disabled';
+      toast.success(`Facility ${statusText} successfully`);
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to update facility status');
     },
   });
 };

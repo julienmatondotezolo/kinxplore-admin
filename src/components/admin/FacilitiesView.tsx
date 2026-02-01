@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useFacilities, useCreateFacility, useUpdateFacility, useDeleteFacility, Facility } from '@/hooks/useFacilities';
+import { useFacilities, useCreateFacility, useUpdateFacility, useDeleteFacility, useToggleFacilityStatus, Facility } from '@/hooks/useFacilities';
 import { useParentCategories } from '@/hooks/useCategoryManagement';
-import { Plus, Edit, Trash2, Loader2, Sparkles, Save, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, Sparkles, Save, X, Power, PowerOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,10 +18,12 @@ export function FacilitiesView() {
   const createMutation = useCreateFacility();
   const updateMutation = useUpdateFacility();
   const deleteMutation = useDeleteFacility();
+  const toggleStatusMutation = useToggleFacilityStatus();
   
   const [isCreating, setIsCreating] = useState(false);
   const [editingFacility, setEditingFacility] = useState<Facility | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
   
   // Form state
   const [formData, setFormData] = useState({
@@ -103,14 +105,25 @@ export function FacilitiesView() {
     return category?.name || 'Unknown';
   };
 
+  const handleToggleStatus = async (facility: Facility) => {
+    const newStatus = facility.status === 'active' ? 'inactive' : 'active';
+    await toggleStatusMutation.mutateAsync({ id: facility.id, status: newStatus });
+  };
+
+  // Filter facilities based on status
+  const filteredFacilities = facilities?.filter(facility => {
+    if (filterStatus === 'all') return true;
+    return facility.status === filterStatus || (!facility.status && filterStatus === 'active');
+  }) || [];
+
   return (
     <>
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="max-w-2xl bg-white rounded-[24px] shadow-2xl shadow-black/10">
+        <DialogContent className="max-w-2xl bg-[#1e293b] rounded-[24px] shadow-2xl shadow-black/10 border-gray-700">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-50 rounded-[20px] flex items-center justify-center text-purple-600">
+            <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-500/20 rounded-[20px] flex items-center justify-center text-purple-400">
                 <Sparkles className="w-5 h-5" />
               </div>
               Edit Facility
@@ -119,48 +132,48 @@ export function FacilitiesView() {
 
           <div className="space-y-4 py-4">
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Facility Name</label>
+              <label className="block text-sm font-bold text-white mb-2">Facility Name</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Facility name..."
-                className="w-full px-6 py-3 bg-white border border-gray-200 rounded-full text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 shadow-sm"
+                className="w-full px-6 py-3 bg-white/10 border border-gray-600 rounded-full text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 shadow-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Icon (Emoji)</label>
+              <label className="block text-sm font-bold text-white mb-2">Icon (Emoji)</label>
               <input
                 type="text"
                 value={formData.icon}
                 onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
                 placeholder="✨ Add an emoji..."
-                className="w-full px-6 py-3 bg-white border border-gray-200 rounded-full text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 shadow-sm"
+                className="w-full px-6 py-3 bg-white/10 border border-gray-600 rounded-full text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 shadow-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Description</label>
+              <label className="block text-sm font-bold text-white mb-2">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Description (optional)..."
                 rows={3}
-                className="w-full px-6 py-3 bg-white border border-gray-200 rounded-[24px] text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 shadow-sm resize-none"
+                className="w-full px-6 py-3 bg-white/10 border border-gray-600 rounded-[24px] text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 shadow-sm resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Category</label>
+              <label className="block text-sm font-bold text-white mb-2">Category</label>
               <select
                 value={formData.category_id}
                 onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                className="w-full px-6 py-3 bg-white border border-gray-200 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 shadow-sm"
+                className="w-full px-6 py-3 bg-white/10 border border-gray-600 rounded-full text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 shadow-sm"
               >
-                <option value="">No category</option>
+                <option value="" className="bg-gray-800 text-white">No category</option>
                 {categories?.map((category) => (
-                  <option key={category.id} value={category.id}>
+                  <option key={category.id} value={category.id} className="bg-gray-800 text-white">
                     {category.name}
                   </option>
                 ))}
@@ -168,7 +181,7 @@ export function FacilitiesView() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
             <Button
               onClick={() => {
                 setIsEditModalOpen(false);
@@ -176,14 +189,14 @@ export function FacilitiesView() {
                 resetForm();
               }}
               variant="outline"
-              className="px-8 py-3 rounded-full border-gray-200 hover:bg-gray-50 text-gray-900"
+              className="px-8 py-3 rounded-full border-gray-600 hover:bg-white/10 text-white"
             >
               Cancel
             </Button>
             <Button
               onClick={handleUpdate}
               disabled={updateMutation.isPending}
-              className="bg-black hover:bg-gray-800 text-white px-10 py-4 rounded-full shadow-lg shadow-black/10 transition-all hover:scale-105 active:scale-95 font-bold"
+              className="bg-white hover:bg-gray-100 text-gray-900 px-10 py-4 rounded-full shadow-lg shadow-black/10 transition-all hover:scale-105 active:scale-95 font-bold"
             >
               {updateMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Save Changes
@@ -199,13 +212,48 @@ export function FacilitiesView() {
             <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Facilities</h1>
             <p className="text-gray-600 mt-2 text-lg">Manage facilities for your destinations</p>
           </div>
-          <Button 
-            onClick={() => setIsCreating(true)}
-            className="bg-black hover:bg-gray-800 text-white px-8 py-6 rounded-full flex items-center gap-2 shadow-lg shadow-black/10 transition-all hover:scale-105 active:scale-95"
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-bold">New Facility</span>
-          </Button>
+          <div className="flex items-center gap-4">
+            {/* Status Filter */}
+            <div className="flex items-center gap-2 bg-white rounded-full p-1 shadow-sm border border-gray-200">
+              <button
+                onClick={() => setFilterStatus('all')}
+                className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                  filterStatus === 'all'
+                    ? 'bg-black text-white'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setFilterStatus('active')}
+                className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                  filterStatus === 'active'
+                    ? 'bg-emerald-500 text-white'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Active
+              </button>
+              <button
+                onClick={() => setFilterStatus('inactive')}
+                className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                  filterStatus === 'inactive'
+                    ? 'bg-gray-500 text-white'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Inactive
+              </button>
+            </div>
+            <Button 
+              onClick={() => setIsCreating(true)}
+              className="bg-black hover:bg-gray-800 text-white px-8 py-6 rounded-full flex items-center gap-2 shadow-lg shadow-black/10 transition-all hover:scale-105 active:scale-95"
+            >
+              <Plus className="w-5 h-5" />
+              <span className="font-bold">New Facility</span>
+            </Button>
+          </div>
         </div>
 
         {/* Create Facility Form */}
@@ -280,49 +328,98 @@ export function FacilitiesView() {
             <div className="col-span-full flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-gray-900" />
             </div>
-          ) : facilities && facilities.length > 0 ? (
-            facilities.map((facility) => (
-              <div 
-                key={facility.id} 
-                className="bg-white p-6 rounded-[24px] border border-gray-200 shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all group"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-14 h-14 bg-purple-50 rounded-[20px] flex items-center justify-center text-3xl">
-                    {facility.icon || '✨'}
+          ) : filteredFacilities.length > 0 ? (
+            filteredFacilities.map((facility) => {
+              const isActive = facility.status === 'active' || !facility.status;
+              return (
+                <div 
+                  key={facility.id} 
+                  className={`bg-white p-6 rounded-[24px] border shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all group relative ${
+                    isActive ? 'border-gray-200' : 'border-gray-300 opacity-60'
+                  }`}
+                >
+                  {/* Status Badge */}
+                  <div className="absolute top-4 right-4">
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                      isActive 
+                        ? 'bg-emerald-50 text-emerald-700' 
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {isActive ? 'Active' : 'Inactive'}
+                    </span>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center text-3xl ${
+                      isActive ? 'bg-purple-50' : 'bg-gray-100'
+                    }`}>
+                      {facility.icon || '✨'}
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 pr-20">{facility.name}</h3>
+                  
+                  {facility.description && (
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{facility.description}</p>
+                  )}
+
+                  <div className="flex items-center gap-2 pt-3 border-t border-gray-100 mb-3">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full bg-purple-50 text-purple-700">
+                      {getCategoryName(facility.category_id)}
+                    </span>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-3 border-t border-gray-100">
+                    <button 
+                      onClick={() => handleToggleStatus(facility)}
+                      disabled={toggleStatusMutation.isPending}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-bold text-sm transition-all ${
+                        isActive
+                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
+                      }`}
+                    >
+                      {toggleStatusMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : isActive ? (
+                        <>
+                          <PowerOff className="w-4 h-4" />
+                          Disable
+                        </>
+                      ) : (
+                        <>
+                          <Power className="w-4 h-4" />
+                          Enable
+                        </>
+                      )}
+                    </button>
                     <button 
                       onClick={() => handleEdit(facility)}
-                      className="p-2.5 hover:bg-gray-50 rounded-full transition-colors"
+                      className="p-2.5 hover:bg-blue-50 rounded-full transition-colors"
+                      title="Edit facility"
                     >
-                      <Edit className="w-4 h-4 text-gray-900" />
+                      <Edit className="w-4 h-4 text-blue-600" />
                     </button>
                     <button 
                       onClick={() => handleDelete(facility.id)}
                       className="p-2.5 hover:bg-red-50 rounded-full transition-colors"
+                      title="Delete facility"
                     >
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </button>
                   </div>
                 </div>
-                
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{facility.name}</h3>
-                
-                {facility.description && (
-                  <p className="text-sm text-gray-900 mb-3 line-clamp-2">{facility.description}</p>
-                )}
-
-                <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-purple-50 text-purple-700">
-                    {getCategoryName(facility.category_id)}
-                  </span>
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="col-span-full text-center py-12">
               <Sparkles className="w-12 h-12 text-gray-900 mx-auto mb-4" />
-              <p className="text-gray-600">No facilities yet. Create your first one!</p>
+              <p className="text-gray-600">
+                {filterStatus === 'all' 
+                  ? 'No facilities yet. Create your first one!' 
+                  : `No ${filterStatus} facilities found.`}
+              </p>
             </div>
           )}
         </div>
