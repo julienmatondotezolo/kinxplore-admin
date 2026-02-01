@@ -115,10 +115,10 @@ export function BookingsView() {
           {/* Refresh Button */}
           <button
             onClick={refreshBookings}
-            className="flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors shadow-sm"
+            className="flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors shadow-sm text-gray-900"
           >
-            <RefreshCw className="w-4 h-4" />
-            <span className="font-medium text-sm">Refresh</span>
+            <RefreshCw className="w-4 h-4 text-gray-900" />
+            <span className="font-medium text-sm text-gray-900">Refresh</span>
           </button>
         </div>
       </div>

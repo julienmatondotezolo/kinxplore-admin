@@ -76,7 +76,7 @@ export function CategoriesView() {
                 setNewCategoryName('');
               }}
               variant="outline"
-              className="px-6 rounded-full border-gray-200"
+              className="px-6 rounded-full border-gray-200 text-gray-900"
             >
               Cancel
             </Button>

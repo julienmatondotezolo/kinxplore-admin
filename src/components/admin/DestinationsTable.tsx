@@ -99,12 +99,12 @@ export function DestinationsTable({
   // Render sort icon
   const SortIcon = ({ column }: { column: SortColumn }) => {
     if (sortColumn !== column) {
-      return <ArrowUpDown className="h-4 w-4 opacity-50" />;
+      return <ArrowUpDown className="h-4 w-4 opacity-50 text-gray-900" />;
     }
     return sortDirection === "asc" ? (
-      <ArrowUp className="h-4 w-4" />
+      <ArrowUp className="h-4 w-4 text-gray-900" />
     ) : (
-      <ArrowDown className="h-4 w-4" />
+      <ArrowDown className="h-4 w-4 text-gray-900" />
     );
   };
 
@@ -113,73 +113,73 @@ export function DestinationsTable({
       {/* Header with search and create */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-900" />
           <Input
             placeholder="Search destinations..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 text-gray-900"
           />
         </div>
-        <Button onClick={onCreate} className="gap-2">
+        <Button onClick={onCreate} className="gap-2 bg-black text-white hover:bg-gray-800 rounded-full">
           <Plus className="h-4 w-4" />
           Create Destination
         </Button>
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-[20px] border border-gray-100 bg-white overflow-hidden shadow-sm">
         <table className="w-full table-fixed">
-          <thead className="bg-muted/50 border-b">
+          <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
-              <th className="w-[30%] px-4 py-3 text-left text-sm font-semibold">
+              <th className="w-[30%] px-4 py-3 text-left text-sm font-semibold text-gray-900">
                 <button
                   onClick={() => handleSort("name")}
-                  className="flex items-center gap-2 hover:text-primary transition-colors"
+                  className="flex items-center gap-2 hover:text-black transition-colors text-gray-900"
                 >
                   Destination
                   <SortIcon column="name" />
                 </button>
               </th>
-              <th className="w-[25%] px-4 py-3 text-left text-sm font-semibold hidden lg:table-cell">
+              <th className="w-[25%] px-4 py-3 text-left text-sm font-semibold text-gray-900 hidden lg:table-cell">
                 <button
                   onClick={() => handleSort("location")}
-                  className="flex items-center gap-2 hover:text-primary transition-colors"
+                  className="flex items-center gap-2 hover:text-black transition-colors text-gray-900"
                 >
                   Location
                   <SortIcon column="location" />
                 </button>
               </th>
-              <th className="w-[20%] px-4 py-3 text-left text-sm font-semibold hidden md:table-cell">
+              <th className="w-[20%] px-4 py-3 text-left text-sm font-semibold text-gray-900 hidden md:table-cell">
                 Categories
               </th>
-              <th className="w-[10%] px-4 py-3 text-left text-sm font-semibold">
+              <th className="w-[10%] px-4 py-3 text-left text-sm font-semibold text-gray-900">
                 <button
                   onClick={() => handleSort("price")}
-                  className="flex items-center gap-2 hover:text-primary transition-colors"
+                  className="flex items-center gap-2 hover:text-black transition-colors text-gray-900"
                 >
                   Price
                   <SortIcon column="price" />
                 </button>
               </th>
-              <th className="w-[10%] px-4 py-3 text-left text-sm font-semibold hidden sm:table-cell">
+              <th className="w-[10%] px-4 py-3 text-left text-sm font-semibold text-gray-900 hidden sm:table-cell">
                 <button
                   onClick={() => handleSort("rating")}
-                  className="flex items-center gap-2 hover:text-primary transition-colors"
+                  className="flex items-center gap-2 hover:text-black transition-colors text-gray-900"
                 >
                   Rating
                   <SortIcon column="rating" />
                 </button>
               </th>
-              <th className="w-[5%] px-4 py-3 text-right text-sm font-semibold">
+              <th className="w-[5%] px-4 py-3 text-right text-sm font-semibold text-gray-900">
                 Actions
               </th>
             </tr>
           </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-gray-100">
               {sortedDestinations.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-600">
                     {searchTerm
                       ? "No destinations found matching your search."
                       : "No destinations yet. Create your first one!"}
@@ -192,7 +192,7 @@ export function DestinationsTable({
                   <tr
                     key={destination.id}
                     onClick={() => onView(destination)}
-                    className={`hover:bg-muted/30 transition-colors cursor-pointer ${isInactive ? 'opacity-50 bg-muted/20' : ''}`}
+                    className={`hover:bg-gray-50 transition-colors cursor-pointer ${isInactive ? 'opacity-50 bg-gray-50' : ''}`}
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3 min-w-0">
@@ -205,56 +205,56 @@ export function DestinationsTable({
                         )}
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className={`font-medium text-sm truncate ${isInactive ? 'line-through text-muted-foreground' : ''}`}>
+                            <p className={`font-medium text-sm truncate ${isInactive ? 'line-through text-gray-600' : 'text-gray-900'}`}>
                               {destination.name}
                             </p>
                             {isInactive && (
-                              <Badge variant="outline" className="text-xs text-muted-foreground flex-shrink-0">
+                              <Badge variant="outline" className="text-xs text-gray-600 flex-shrink-0">
                                 Inactive
                               </Badge>
                             )}
                           </div>
                           {destination.description && (
-                            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+                            <p className="text-xs sm:text-sm text-gray-600 line-clamp-1">
                               {destination.description}
                             </p>
                           )}
                           {/* Show location on mobile */}
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1 lg:hidden truncate">
-                            <MapPin className="h-3 w-3 flex-shrink-0" />
+                          <div className="flex items-center gap-1 text-xs text-gray-600 mt-1 lg:hidden truncate">
+                            <MapPin className="h-3 w-3 flex-shrink-0 text-gray-900" />
                             <span className="truncate">{destination.location || "N/A"}</span>
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden lg:table-cell">
-                      <div className="flex items-start gap-1 text-sm min-w-0">
-                        <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-1 text-sm min-w-0 text-gray-900">
+                        <MapPin className="h-4 w-4 text-gray-900 flex-shrink-0 mt-0.5" />
                         <span className="line-clamp-2">{destination.location || "N/A"}</span>
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden md:table-cell">
                       <div className="flex flex-wrap gap-1">
                         {destination.categories.slice(0, 2).map((cat, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
+                          <Badge key={idx} variant="secondary" className="text-xs text-gray-900">
                             {cat.parent.name}
                           </Badge>
                         ))}
                         {destination.categories.length > 2 && (
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs text-gray-900">
                             +{destination.categories.length - 2}
                           </Badge>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-1 text-xs sm:text-sm font-medium whitespace-nowrap">
+                      <div className="flex items-center gap-1 text-xs sm:text-sm font-medium whitespace-nowrap text-gray-900">
                         <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
                         {destination.price?.toFixed(2) || "0.00"}
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden sm:table-cell">
-                      <div className="flex items-center gap-1 text-sm whitespace-nowrap">
+                      <div className="flex items-center gap-1 text-sm whitespace-nowrap text-gray-900">
                         <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                         {destination.ratings?.toFixed(1) || "0.0"}
                       </div>
@@ -270,7 +270,7 @@ export function DestinationsTable({
                                 e.stopPropagation();
                                 onReactivate(destination);
                               }}
-                              className="gap-1 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950 h-8 px-2"
+                              className="gap-1 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 h-8 px-2 rounded-full"
                               title="Reactivate this destination"
                               disabled={isReactivating}
                             >
@@ -285,7 +285,7 @@ export function DestinationsTable({
                                 onViewHistory(destination);
                               }}
                               title="View History"
-                              className="h-8 w-8 p-0"
+                              className="h-8 w-8 p-0 text-gray-900 hover:bg-gray-100 rounded-full"
                             >
                               <History className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
@@ -300,7 +300,7 @@ export function DestinationsTable({
                                 onViewHistory(destination);
                               }}
                               title="View History"
-                              className="h-8 w-8 p-0 hidden md:flex"
+                              className="h-8 w-8 p-0 hidden md:flex text-gray-900 hover:bg-gray-100 rounded-full"
                             >
                               <History className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
@@ -312,7 +312,7 @@ export function DestinationsTable({
                                 onEdit(destination);
                               }}
                               title="Edit"
-                              className="h-8 w-8 p-0"
+                              className="h-8 w-8 p-0 text-gray-900 hover:bg-gray-100 rounded-full"
                             >
                               <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
@@ -323,7 +323,7 @@ export function DestinationsTable({
                                 e.stopPropagation();
                                 onDelete(destination);
                               }}
-                              className="text-destructive hover:text-destructive h-8 w-8 p-0"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0 rounded-full"
                               title="Deactivate"
                             >
                               <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -341,12 +341,12 @@ export function DestinationsTable({
       </div>
 
       {/* Stats */}
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="flex items-center justify-between text-sm text-gray-600">
         <p>
           Showing {sortedDestinations.length} of {destinations.length}{" "}
           destinations
           {sortColumn && (
-            <span className="ml-2 text-primary">
+            <span className="ml-2 text-gray-900 font-medium">
               • Sorted by {sortColumn} ({sortDirection})
             </span>
           )}

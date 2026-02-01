@@ -21,7 +21,8 @@ import {
   TrendingUp, 
   DollarSign, 
   Plus,
-  ArrowUpRight
+  ArrowUpRight,
+  Calendar
 } from "lucide-react";
 import {
   Dialog,
@@ -38,6 +39,7 @@ import { UsersSidebar } from "@/components/admin/UsersSidebar";
 import { QuickTabs } from "@/components/admin/QuickTabs";
 import { CategoriesView } from "@/components/admin/CategoriesView";
 import { BookingsView } from "@/components/admin/BookingsView";
+import { useBookingManagement } from "@/hooks/useBookingManagement";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,7 @@ function AdminContent() {
   const updateMutation = useUpdateDestination();
   const deleteMutation = useDeleteDestination();
   const reactivateMutation = useReactivateDestination();
+  const { statistics: bookingStats } = useBookingManagement();
 
   const handleCreate = () => {
     setSelectedDestination(null);
@@ -221,58 +224,58 @@ function AdminContent() {
             </div>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-8 rounded-[20px] border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white p-5 rounded-[16px] border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Active Destinations</p>
-                    <p className="text-5xl font-bold text-gray-900 mt-4">{totalDestinations}</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Active Destinations</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">{totalDestinations}</p>
                   </div>
-                  <div className="w-14 h-14 bg-blue-50 rounded-[20px] flex items-center justify-center text-blue-600">
-                    <MapPin className="w-7 h-7" />
+                  <div className="w-10 h-10 bg-blue-50 rounded-[14px] flex items-center justify-center text-blue-600">
+                    <MapPin className="w-5 h-5" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-6">
-                  <span className="text-green-600 font-bold flex items-center gap-1 text-sm">
-                    <TrendingUp className="w-4 h-4" /> +12.5%
+                <div className="flex items-center gap-2 mt-3">
+                  <span className="text-green-600 font-bold flex items-center gap-1 text-xs">
+                    <TrendingUp className="w-3 h-3" /> +12.5%
                   </span>
-                  <span className="text-gray-600 text-sm font-medium">This month</span>
+                  <span className="text-gray-600 text-xs font-medium">This month</span>
                 </div>
               </div>
 
-              <div className="bg-white p-8 rounded-[20px] border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white p-5 rounded-[16px] border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Average Price</p>
-                    <p className="text-5xl font-bold text-gray-900 mt-4">${avgPrice.toFixed(0)}</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Bookings</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">{bookingStats?.total || 0}</p>
                   </div>
-                  <div className="w-14 h-14 bg-emerald-50 rounded-[20px] flex items-center justify-center text-emerald-600">
-                    <DollarSign className="w-7 h-7" />
+                  <div className="w-10 h-10 bg-emerald-50 rounded-[14px] flex items-center justify-center text-emerald-600">
+                    <Calendar className="w-5 h-5" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-6">
-                  <span className="text-green-600 font-bold flex items-center gap-1 text-sm">
-                    <TrendingUp className="w-4 h-4" /> +8.2%
+                <div className="flex items-center gap-2 mt-3">
+                  <span className="text-green-600 font-bold flex items-center gap-1 text-xs">
+                    <TrendingUp className="w-3 h-3" /> +{bookingStats?.newThisMonth || 0}
                   </span>
-                  <span className="text-gray-600 text-sm font-medium">This month</span>
+                  <span className="text-gray-600 text-xs font-medium">This month</span>
                 </div>
               </div>
 
-              <div className="bg-white p-8 rounded-[20px] border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white p-5 rounded-[16px] border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Average Rating</p>
-                    <p className="text-5xl font-bold text-gray-900 mt-4">{avgRating.toFixed(1)}</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Average Rating</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">{avgRating.toFixed(1)}</p>
                   </div>
-                  <div className="w-14 h-14 bg-amber-50 rounded-[20px] flex items-center justify-center text-amber-600">
-                    <TrendingUp className="w-7 h-7" />
+                  <div className="w-10 h-10 bg-amber-50 rounded-[14px] flex items-center justify-center text-amber-600">
+                    <TrendingUp className="w-5 h-5" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 mt-6">
-                  <span className="text-green-600 font-bold flex items-center gap-1 text-sm">
-                    <TrendingUp className="w-4 h-4" /> +3.1%
+                <div className="flex items-center gap-2 mt-3">
+                  <span className="text-green-600 font-bold flex items-center gap-1 text-xs">
+                    <TrendingUp className="w-3 h-3" /> +3.1%
                   </span>
-                  <span className="text-gray-600 text-sm font-medium">This month</span>
+                  <span className="text-gray-600 text-xs font-medium">This month</span>
                 </div>
               </div>
             </div>
@@ -327,7 +330,7 @@ function AdminContent() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-pink-50/30">
+    <div className="flex min-h-screen bg-gradient-to-br from-orange-50 via-blue-50 to-purple-50">
       <Toaster position="top-right" richColors />
       
       {/* Left Sidebar */}
