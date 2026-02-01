@@ -9,8 +9,8 @@ import Providers from "./providers";
 const dmSans = DM_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "next-ts-starter template",
-  description: "Next.js typescript template with tailwind darkmode and localization",
+  title: "KinXplore Admin",
+  description: "KinXplore Admin",
 };
 
 export default async function RootLayout({
