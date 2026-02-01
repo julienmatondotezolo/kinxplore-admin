@@ -185,370 +185,323 @@ export function CategoriesTable({
   const inactiveSubs = sortedSubs.filter(c => c.status === 'inactive').length;
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      {/* Header with search and stats */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 items-stretch sm:items-center justify-between">
-        <div className="relative flex-1 sm:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search categories..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-9 sm:h-10"
-          />
-        </div>
-        
-        <Button
-          onClick={activeTab === "parents" ? onCreateParent : onCreateSub}
-          className="gap-2 h-9 sm:h-10 w-full sm:w-auto"
-          size="sm"
-        >
-          <Plus className="h-4 w-4" />
-          <span className="hidden xs:inline">Create</span> {activeTab === "parents" ? "Parent" : "Sub"}
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid gap-2 sm:gap-4 grid-cols-2 sm:grid-cols-4">
-        <div className="rounded-lg border bg-card p-2 sm:p-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-1 sm:gap-0">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Parents</p>
-              <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1">{activeParents}</p>
-            </div>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-              <FolderTree className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            </div>
+    <div className="flex flex-col">
+      {/* Header with search and tabs */}
+      <div className="flex flex-col border-b border-border bg-card/50">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between p-6">
+          <div className="relative flex-1 max-w-md w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-11 h-11 rounded-2xl border-border bg-background/50 focus:bg-background transition-all"
+            />
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
+            <span className="hidden sm:inline">Total</span>
+            <span className="text-foreground font-bold">{activeTab === "parents" ? sortedParents.length : sortedSubs.length}</span>
+            <span className="hidden sm:inline">items</span>
           </div>
         </div>
 
-        <div className="rounded-lg border bg-card p-2 sm:p-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-1 sm:gap-0">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Inactive Parents</p>
-              <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1">{inactiveParents}</p>
-            </div>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-900/30">
-              <FolderTree className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-2 sm:p-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-1 sm:gap-0">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Subs</p>
-              <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1">{activeSubs}</p>
-            </div>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-              <Tag className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card p-2 sm:p-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-1 sm:gap-0">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Inactive Subs</p>
-              <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1">{inactiveSubs}</p>
-            </div>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-900/30">
-              <Tag className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-            </div>
-          </div>
+        <div className="px-6 pb-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full sm:w-auto bg-transparent border-b border-transparent h-auto p-0 gap-8">
+              <TabsTrigger 
+                value="parents" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 pb-4 text-sm font-bold transition-all"
+              >
+                Parent Categories
+              </TabsTrigger>
+              <TabsTrigger 
+                value="subcategories" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 pb-4 text-sm font-bold transition-all"
+              >
+                Subcategories
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
-      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-auto">
-          <TabsTrigger value="parents" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
-            <FolderTree className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">Parent Categories</span>
-            <span className="xs:hidden">Parents</span> ({sortedParents.length})
-          </TabsTrigger>
-          <TabsTrigger value="subcategories" className="gap-1 sm:gap-2 text-xs sm:text-sm py-2">
-            <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">Subcategories</span>
-            <span className="xs:hidden">Subs</span> ({sortedSubs.length})
-          </TabsTrigger>
-        </TabsList>
-
         {/* Parent Categories Table */}
-        <TabsContent value="parents" className="mt-3 sm:mt-4">
-          <div className="rounded-lg border bg-card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted/50 border-b">
+        <TabsContent value="parents" className="m-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground w-[40%]">
+                    <button
+                      onClick={() => handleParentSort("name")}
+                      className="flex items-center gap-2 hover:text-primary transition-colors"
+                    >
+                      Name
+                      <ParentSortIcon column="name" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground hidden sm:table-cell w-[25%]">
+                    <button
+                      onClick={() => handleParentSort("subcategories")}
+                      className="flex items-center gap-2 hover:text-primary transition-colors"
+                    >
+                      Subcategories
+                      <ParentSortIcon column="subcategories" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground hidden md:table-cell w-[20%]">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground w-[15%] text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {sortedParents.length === 0 ? (
                   <tr>
-                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
-                      <button
-                        onClick={() => handleParentSort("name")}
-                        className="flex items-center gap-1 sm:gap-2 hover:text-primary transition-colors"
-                      >
-                        Name
-                        <ParentSortIcon column="name" />
-                      </button>
-                    </th>
-                    <th className="hidden sm:table-cell px-4 py-3 text-left text-sm font-semibold">
-                      <button
-                        onClick={() => handleParentSort("subcategories")}
-                        className="flex items-center gap-2 hover:text-primary transition-colors"
-                      >
-                        Subcategories
-                        <ParentSortIcon column="subcategories" />
-                      </button>
-                    </th>
-                    <th className="hidden md:table-cell px-4 py-3 text-left text-sm font-semibold">Status</th>
-                    <th className="hidden lg:table-cell px-4 py-3 text-left text-sm font-semibold">
-                      <button
-                        onClick={() => handleParentSort("created")}
-                        className="flex items-center gap-2 hover:text-primary transition-colors"
-                      >
-                        Created
-                        <ParentSortIcon column="created" />
-                      </button>
-                    </th>
-                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm font-semibold">Actions</th>
+                    <td colSpan={4} className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <div className="rounded-full bg-muted p-3">
+                          <FolderTree className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <p className="text-lg font-medium">No parent categories found</p>
+                        <p className="text-sm text-muted-foreground">
+                          {searchTerm ? `No matches for "${searchTerm}"` : "Create your first parent category."}
+                        </p>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {sortedParents.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                        {searchTerm
-                          ? "No parent categories found matching your search."
-                          : "No parent categories yet. Create your first one!"}
-                      </td>
-                    </tr>
-                  ) : (
-                    sortedParents.map((category) => {
-                      const isInactive = category.status === 'inactive';
-                      const subCount = category.subcategories?.length || 0;
-                      return (
-                        <tr
-                          key={category.id}
-                          className={`hover:bg-muted/30 transition-colors ${
-                            isInactive ? 'opacity-50 bg-muted/20' : ''
-                          }`}
-                        >
-                          <td className="px-2 sm:px-4 py-3 sm:py-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                              <div className="flex items-center gap-2">
-                                <FolderTree className={`h-3 w-3 sm:h-4 sm:w-4 ${isInactive ? 'text-muted-foreground' : 'text-blue-600'}`} />
-                                <span className={`font-medium text-sm sm:text-base ${isInactive ? 'line-through text-muted-foreground' : ''}`}>
-                                  {category.name}
-                                </span>
-                              </div>
-                              {isInactive && (
-                                <Badge variant="outline" className="text-xs w-fit">
-                                  Inactive
-                                </Badge>
-                              )}
-                              <div className="sm:hidden flex items-center gap-2 text-xs text-muted-foreground">
-                                <Layers className="h-3 w-3" />
-                                {subCount} subs
-                              </div>
+                ) : (
+                  sortedParents.map((category) => {
+                    const isInactive = category.status === 'inactive';
+                    return (
+                      <tr
+                        key={category.id}
+                        className={cn(
+                          "group hover:bg-muted/50 transition-all",
+                          isInactive && "opacity-60 grayscale-[0.5]"
+                        )}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600">
+                              <FolderTree className="h-5 w-5" />
                             </div>
-                          </td>
-                          <td className="hidden sm:table-cell px-4 py-4">
-                            <div className="flex items-center gap-1">
-                              <Layers className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm">{subCount}</span>
+                            <div>
+                              <p className={cn(
+                                "font-bold text-foreground group-hover:text-primary transition-colors",
+                                isInactive && "text-muted-foreground line-through"
+                              )}>
+                                {category.name}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                                ID: {category.id.slice(0, 8)}
+                              </p>
                             </div>
-                          </td>
-                          <td className="hidden md:table-cell px-4 py-4">
-                            <Badge variant={isInactive ? "outline" : "default"} className="text-xs">
-                              {category.status}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 hidden sm:table-cell">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="rounded-lg px-2 py-0.5 text-xs font-bold bg-muted text-foreground border-none">
+                              {category.subcategories?.length || 0} subcategories
                             </Badge>
-                          </td>
-                          <td className="hidden lg:table-cell px-4 py-4">
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(category.created_at).toLocaleDateString()}
-                            </span>
-                          </td>
-                          <td className="px-2 sm:px-4 py-3 sm:py-4">
-                            <div className="flex items-center justify-end gap-1 sm:gap-2">
-                              {isInactive ? (
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 hidden md:table-cell">
+                          <Badge 
+                            variant={isInactive ? "outline" : "default"} 
+                            className={cn(
+                              "rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                              !isInactive && "bg-green-500/10 text-green-600 border-none",
+                              isInactive && "bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {category.status}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {isInactive ? (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => onReactivateParent(category)}
+                                className="h-9 w-9 rounded-xl text-green-600 border-green-200 hover:bg-green-50"
+                                disabled={isReactivating}
+                              >
+                                <RotateCcw className="h-4 w-4" />
+                              </Button>
+                            ) : (
+                              <>
                                 <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => onReactivateParent(category)}
-                                  className="gap-1 sm:gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950 text-xs sm:text-sm h-8 px-2 sm:px-3"
-                                  disabled={isReactivating}
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => onEditParent(category)}
+                                  className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary"
                                 >
-                                  <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
-                                  <span className="hidden sm:inline">Reactivate</span>
+                                  <Edit className="h-4 w-4" />
                                 </Button>
-                              ) : (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => onEditParent(category)}
-                                    className="h-8 w-8 p-0"
-                                  >
-                                    <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => onDeleteParent(category)}
-                                    className="text-destructive hover:text-destructive h-8 w-8 p-0"
-                                  >
-                                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => onDeleteParent(category)}
+                                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </TabsContent>
 
         {/* Subcategories Table */}
-        <TabsContent value="subcategories" className="mt-3 sm:mt-4">
-          <div className="rounded-lg border bg-card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted/50 border-b">
+        <TabsContent value="subcategories" className="m-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground w-[40%]">
+                    <button
+                      onClick={() => handleSubSort("name")}
+                      className="flex items-center gap-2 hover:text-primary transition-colors"
+                    >
+                      Name
+                      <SubSortIcon column="name" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground hidden sm:table-cell w-[25%]">
+                    <button
+                      onClick={() => handleSubSort("parent")}
+                      className="flex items-center gap-2 hover:text-primary transition-colors"
+                    >
+                      Parent Category
+                      <SubSortIcon column="parent" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground hidden md:table-cell w-[20%]">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground w-[15%] text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {sortedSubs.length === 0 ? (
                   <tr>
-                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
-                      <button
-                        onClick={() => handleSubSort("name")}
-                        className="flex items-center gap-1 sm:gap-2 hover:text-primary transition-colors"
-                      >
-                        Name
-                        <SubSortIcon column="name" />
-                      </button>
-                    </th>
-                    <th className="hidden sm:table-cell px-4 py-3 text-left text-sm font-semibold">
-                      <button
-                        onClick={() => handleSubSort("parent")}
-                        className="flex items-center gap-2 hover:text-primary transition-colors"
-                      >
-                        Parent Category
-                        <SubSortIcon column="parent" />
-                      </button>
-                    </th>
-                    <th className="hidden md:table-cell px-4 py-3 text-left text-sm font-semibold">Status</th>
-                    <th className="hidden lg:table-cell px-4 py-3 text-left text-sm font-semibold">
-                      <button
-                        onClick={() => handleSubSort("created")}
-                        className="flex items-center gap-2 hover:text-primary transition-colors"
-                      >
-                        Created
-                        <SubSortIcon column="created" />
-                      </button>
-                    </th>
-                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm font-semibold">Actions</th>
+                    <td colSpan={4} className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <div className="rounded-full bg-muted p-3">
+                          <Tag className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <p className="text-lg font-medium">No subcategories found</p>
+                        <p className="text-sm text-muted-foreground">
+                          {searchTerm ? `No matches for "${searchTerm}"` : "Create your first subcategory."}
+                        </p>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {sortedSubs.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                        {searchTerm
-                          ? "No subcategories found matching your search."
-                          : "No subcategories yet. Create your first one!"}
-                      </td>
-                    </tr>
-                  ) : (
-                    sortedSubs.map((subcategory) => {
-                      const isInactive = subcategory.status === 'inactive';
-                      return (
-                        <tr
-                          key={subcategory.id}
-                          className={`hover:bg-muted/30 transition-colors ${
-                            isInactive ? 'opacity-50 bg-muted/20' : ''
-                          }`}
-                        >
-                          <td className="px-2 sm:px-4 py-3 sm:py-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                              <div className="flex items-center gap-2">
-                                <Tag className={`h-3 w-3 sm:h-4 sm:w-4 ${isInactive ? 'text-muted-foreground' : 'text-purple-600'}`} />
-                                <span className={`font-medium text-sm sm:text-base ${isInactive ? 'line-through text-muted-foreground' : ''}`}>
-                                  {subcategory.name}
-                                </span>
-                              </div>
-                              {isInactive && (
-                                <Badge variant="outline" className="text-xs w-fit">
-                                  Inactive
-                                </Badge>
-                              )}
-                              <div className="sm:hidden">
-                                <Badge variant="secondary" className="text-xs">
-                                  {subcategory.parent_categories?.name || 'N/A'}
-                                </Badge>
-                              </div>
+                ) : (
+                  sortedSubs.map((subcategory) => {
+                    const isInactive = subcategory.status === 'inactive';
+                    return (
+                      <tr
+                        key={subcategory.id}
+                        className={cn(
+                          "group hover:bg-muted/50 transition-all",
+                          isInactive && "opacity-60 grayscale-[0.5]"
+                        )}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-600">
+                              <Tag className="h-5 w-5" />
                             </div>
-                          </td>
-                          <td className="hidden sm:table-cell px-4 py-4">
-                            <Badge variant="secondary" className="text-xs">
-                              {subcategory.parent_categories?.name || 'N/A'}
-                            </Badge>
-                          </td>
-                          <td className="hidden md:table-cell px-4 py-4">
-                            <Badge variant={isInactive ? "outline" : "default"} className="text-xs">
-                              {subcategory.status}
-                            </Badge>
-                          </td>
-                          <td className="hidden lg:table-cell px-4 py-4">
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(subcategory.created_at).toLocaleDateString()}
-                            </span>
-                          </td>
-                          <td className="px-2 sm:px-4 py-3 sm:py-4">
-                            <div className="flex items-center justify-end gap-1 sm:gap-2">
-                              {isInactive ? (
+                            <div>
+                              <p className={cn(
+                                "font-bold text-foreground group-hover:text-primary transition-colors",
+                                isInactive && "text-muted-foreground line-through"
+                              )}>
+                                {subcategory.name}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                                ID: {subcategory.id.slice(0, 8)}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 hidden sm:table-cell">
+                          <Badge variant="secondary" className="rounded-lg px-2 py-0.5 text-xs font-bold bg-primary/5 text-primary border-none">
+                            {subcategory.parent_categories?.name || 'N/A'}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 hidden md:table-cell">
+                          <Badge 
+                            variant={isInactive ? "outline" : "default"} 
+                            className={cn(
+                              "rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                              !isInactive && "bg-green-500/10 text-green-600 border-none",
+                              isInactive && "bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {subcategory.status}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {isInactive ? (
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => onReactivateSub(subcategory)}
+                                className="h-9 w-9 rounded-xl text-green-600 border-green-200 hover:bg-green-50"
+                                disabled={isReactivating}
+                              >
+                                <RotateCcw className="h-4 w-4" />
+                              </Button>
+                            ) : (
+                              <>
                                 <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => onReactivateSub(subcategory)}
-                                  className="gap-1 sm:gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950 text-xs sm:text-sm h-8 px-2 sm:px-3"
-                                  disabled={isReactivating}
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => onEditSub(subcategory)}
+                                  className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary"
                                 >
-                                  <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
-                                  <span className="hidden sm:inline">Reactivate</span>
+                                  <Edit className="h-4 w-4" />
                                 </Button>
-                              ) : (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => onEditSub(subcategory)}
-                                    className="h-8 w-8 p-0"
-                                  >
-                                    <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => onDeleteSub(subcategory)}
-                                    className="text-destructive hover:text-destructive h-8 w-8 p-0"
-                                  >
-                                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => onDeleteSub(subcategory)}
+                                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
   );
 }

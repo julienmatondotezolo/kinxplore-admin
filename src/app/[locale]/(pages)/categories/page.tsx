@@ -172,120 +172,98 @@ function CategoriesContent() {
   const error = errorParents || errorSubs;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="space-y-8">
       <Toaster position="top-right" richColors />
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="gap-1 sm:gap-2 hover:bg-muted/50 h-8 sm:h-9"
-                aria-label="Back to home"
-              >
-                <Home className="h-3 w-3 sm:hidden" />
-                <ArrowLeft className="hidden sm:block h-4 w-4" />
-                <span className="hidden sm:inline">Back</span>
-              </Button>
-            </Link>
-            <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 shadow-lg">
-              <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+      {/* Page Title Section */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Categories</h1>
+          <p className="text-muted-foreground">Organize and classify your destinations.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button onClick={handleCreateParent} variant="outline" className="rounded-xl gap-2">
+            <FolderTree className="h-4 w-4" />
+            New Parent
+          </Button>
+          <Button onClick={handleCreateSub} variant="default" className="rounded-xl gap-2 shadow-lg shadow-primary/20">
+            <Plus className="h-4 w-4" />
+            Add Subcategory
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3">
+        <div className="group rounded-3xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                Total Categories
+              </p>
+              <p className="text-4xl font-bold tracking-tight">{totalCategories}</p>
+              <p className="text-xs font-medium text-muted-foreground">Active classification</p>
             </div>
-            <div className="hidden sm:block">
-              <h1 className="text-lg sm:text-xl font-bold tracking-tight">
-                Category Management
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                Organize your destinations
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+              <Layers className="h-7 w-7" />
+            </div>
+          </div>
+        </div>
+
+        <div className="group rounded-3xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/5">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground group-hover:text-blue-600 transition-colors">
+                Parent Categories
+              </p>
+              <p className="text-4xl font-bold tracking-tight">{activeParents}</p>
+              <p className="text-xs font-medium text-muted-foreground">Main groupings</p>
+            </div>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 transition-transform duration-300 group-hover:scale-110">
+              <FolderTree className="h-7 w-7" />
+            </div>
+          </div>
+        </div>
+
+        <div className="group rounded-3xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/5">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground group-hover:text-purple-600 transition-colors">
+                Subcategories
+              </p>
+              <p className="text-4xl font-bold tracking-tight">{activeSubs}</p>
+              <p className="text-xs font-medium text-muted-foreground">Specific tags</p>
+            </div>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-600 transition-transform duration-300 group-hover:scale-110">
+              <Tag className="h-7 w-7" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Categories Table */}
+      <div className="rounded-3xl border border-border bg-card shadow-sm overflow-hidden">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-4 px-6 text-center">
+            <div className="rounded-full bg-destructive/10 p-4">
+              <Layers className="h-8 w-8 text-destructive" />
+            </div>
+            <div className="max-w-md">
+              <p className="text-xl font-bold">Connection Error</p>
+              <p className="text-muted-foreground mt-2">
+                We couldn't fetch the categories. Please ensure your backend service is running.
               </p>
             </div>
-            <div className="sm:hidden">
-              <h1 className="text-base font-bold tracking-tight">
-                Categories
-              </h1>
-            </div>
+            <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+              Try Again
+            </Button>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="sm:hidden">
-              <LanguageSwitcher />
-            </div>
-            <ThemeToggle />
-            <div className="hidden sm:block">
-              <LanguageSwitcher />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-8">
-        {/* Stats Cards */}
-        <div className="grid gap-3 sm:gap-6 grid-cols-3 sm:grid-cols-3">
-          <div className="rounded-lg sm:rounded-xl border border-border/40 bg-card/50 p-3 sm:p-6 shadow-xl backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Total
-                </p>
-                <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2">{totalCategories}</p>
-              </div>
-              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <Layers className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-lg sm:rounded-xl border border-border/40 bg-card/50 p-3 sm:p-6 shadow-xl backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Parents
-                </p>
-                <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2">{activeParents}</p>
-              </div>
-              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <FolderTree className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-lg sm:rounded-xl border border-border/40 bg-card/50 p-3 sm:p-6 shadow-xl backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  Subs
-                </p>
-                <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2">{activeSubs}</p>
-              </div>
-              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                <Tag className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Categories Table */}
-        <div className="rounded-lg sm:rounded-xl border border-border/40 bg-card/50 p-3 sm:p-6 shadow-xl backdrop-blur-sm">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <div className="text-destructive text-center">
-                <p className="text-lg font-semibold">Failed to load categories</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Make sure the backend server is running
-                </p>
-              </div>
-              <Button onClick={() => window.location.reload()} variant="outline">
-                Retry
-              </Button>
-            </div>
-          ) : (
+        ) : (
+          <div className="p-1">
             <CategoriesTable
               parentCategories={safeParents}
               subcategories={safeSubs}
@@ -299,9 +277,9 @@ function CategoriesContent() {
               onCreateSub={handleCreateSub}
               isReactivating={reactivateParentMutation.isPending || reactivateSubMutation.isPending}
             />
-          )}
-        </div>
-      </main>
+          </div>
+        )}
+      </div>
 
       {/* Modals */}
       <CategoryForm
@@ -327,20 +305,20 @@ function CategoriesContent() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Deactivate {deleteType === "parent" ? "Parent Category" : "Subcategory"}</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to deactivate "
-              {deleteType === "parent" ? selectedParent?.name : selectedSub?.name}"?
+            <DialogTitle className="text-2xl">Deactivate {deleteType === "parent" ? "Parent Category" : "Subcategory"}</DialogTitle>
+            <DialogDescription className="text-base">
+              Are you sure you want to deactivate <span className="font-semibold text-foreground">"{deleteType === "parent" ? selectedParent?.name : selectedSub?.name}"</span>?
               {deleteType === "parent" && " All subcategories under this category will also be deactivated."}
               {" "}This action can be reversed later.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => setDeleteDialogOpen(false)}
+              className="rounded-xl"
             >
               Cancel
             </Button>
@@ -348,6 +326,7 @@ function CategoriesContent() {
               variant="destructive"
               onClick={confirmDelete}
               disabled={deleteParentMutation.isPending || deleteSubMutation.isPending}
+              className="rounded-xl shadow-lg shadow-destructive/20"
             >
               {(deleteParentMutation.isPending || deleteSubMutation.isPending) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -15,7 +15,7 @@ import {
   useReactivateDestination,
 } from "@/hooks/useDestinations";
 import { Destination } from "@/lib/api";
-import { Loader2, Database, TrendingUp, MapPin, DollarSign, Layers } from "lucide-react";
+import { Loader2, Database, TrendingUp, MapPin, DollarSign, Plus } from "lucide-react";
 import { Link } from "@/navigation";
 import {
   Dialog,
@@ -130,107 +130,94 @@ function AdminContent() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="space-y-8">
       <Toaster position="top-right" richColors />
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg">
-              <Database className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight">
-                Kinxplore Admin
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                Destination Management System
+      {/* Page Title Section */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Destinations</h1>
+          <p className="text-muted-foreground">Manage your travel destinations and their details.</p>
+        </div>
+        <Button onClick={handleCreate} variant="default" className="w-full sm:w-auto gap-2 shadow-lg shadow-primary/20">
+          <Plus className="h-4 w-4" />
+          Add Destination
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="group rounded-3xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                Active Destinations
+              </p>
+              <p className="text-4xl font-bold tracking-tight">{totalDestinations}</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                <span className="text-accent">{safeDestinations.length - totalDestinations}</span> archived
               </p>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/categories">
-              <Button variant="outline" className="gap-2">
-                <Layers className="h-4 w-4" />
-                Categories
-              </Button>
-            </Link>
-            <ThemeToggle />
-            <LanguageSwitcher />
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-8 space-y-8">
-        {/* Stats Cards */}
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-xl border border-border/40 bg-card/50 p-6 shadow-xl backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Active Destinations
-                </p>
-                <p className="text-3xl font-bold mt-2">{totalDestinations}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {safeDestinations.length - totalDestinations} inactive
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <MapPin className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border/40 bg-card/50 p-6 shadow-xl backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Average Price
-                </p>
-                <p className="text-3xl font-bold mt-2">${avgPrice.toFixed(2)}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-border/40 bg-card/50 p-6 shadow-xl backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Average Rating
-                </p>
-                <p className="text-3xl font-bold mt-2">{avgRating.toFixed(1)}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
-                <TrendingUp className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-              </div>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+              <MapPin className="h-7 w-7" />
             </div>
           </div>
         </div>
 
-        {/* Destinations Table */}
-        <div className="rounded-xl border border-border/40 bg-card/50 p-6 shadow-xl backdrop-blur-sm">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="group rounded-3xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/5">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground group-hover:text-green-600 transition-colors">
+                Average Price
+              </p>
+              <p className="text-4xl font-bold tracking-tight">${avgPrice.toFixed(0)}</p>
+              <p className="text-xs font-medium text-muted-foreground">Across all regions</p>
             </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <div className="text-destructive text-center">
-                <p className="text-lg font-semibold">Failed to load destinations</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Make sure the backend server is running at {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api
-                </p>
-              </div>
-              <Button onClick={() => window.location.reload()} variant="outline">
-                Retry
-              </Button>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/10 text-green-600 transition-transform duration-300 group-hover:scale-110">
+              <DollarSign className="h-7 w-7" />
             </div>
-          ) : (
+          </div>
+        </div>
+
+        <div className="group rounded-3xl border border-border bg-card p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-yellow-500/5 sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground group-hover:text-yellow-600 transition-colors">
+                Average Rating
+              </p>
+              <p className="text-4xl font-bold tracking-tight">{avgRating.toFixed(1)}</p>
+              <p className="text-xs font-medium text-muted-foreground">Based on user reviews</p>
+            </div>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-500/10 text-yellow-600 transition-transform duration-300 group-hover:scale-110">
+              <TrendingUp className="h-7 w-7" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Destinations Table */}
+      <div className="rounded-3xl border border-border bg-card shadow-sm overflow-hidden">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-4 px-6 text-center">
+            <div className="rounded-full bg-destructive/10 p-4">
+              <Database className="h-8 w-8 text-destructive" />
+            </div>
+            <div className="max-w-md">
+              <p className="text-xl font-bold">Connection Error</p>
+              <p className="text-muted-foreground mt-2">
+                We couldn't fetch the destinations. Please ensure your backend service is running.
+              </p>
+            </div>
+            <Button onClick={() => window.location.reload()} variant="outline" className="rounded-xl">
+              Try Again
+            </Button>
+          </div>
+        ) : (
+          <div className="p-1">
             <DestinationsTable
               destinations={safeDestinations}
               onView={handleView}
@@ -241,9 +228,9 @@ function AdminContent() {
               onReactivate={handleReactivate}
               isReactivating={reactivateMutation.isPending}
             />
-          )}
-        </div>
-      </main>
+          </div>
+        )}
+      </div>
 
       {/* Modals */}
       <DestinationDetails
@@ -280,19 +267,19 @@ function AdminContent() {
 
       {/* Deactivate Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Deactivate Destination</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to deactivate "{selectedDestination?.name}"? 
-              The destination will be hidden from users but can be restored later. 
-              This action will be archived for record-keeping.
+            <DialogTitle className="text-2xl">Deactivate Destination</DialogTitle>
+            <DialogDescription className="text-base">
+              Are you sure you want to deactivate <span className="font-semibold text-foreground">"{selectedDestination?.name}"</span>? 
+              It will be hidden from users but can be restored later.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => setDeleteDialogOpen(false)}
+              className="rounded-xl"
             >
               Cancel
             </Button>
@@ -300,11 +287,12 @@ function AdminContent() {
               variant="destructive"
               onClick={confirmDelete}
               disabled={deleteMutation.isPending}
+              className="rounded-xl shadow-lg shadow-destructive/20"
             >
               {deleteMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Deactivate
+              Deactivate Destination
             </Button>
           </DialogFooter>
         </DialogContent>
