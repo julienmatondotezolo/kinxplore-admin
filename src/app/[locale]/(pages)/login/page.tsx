@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 
@@ -9,8 +9,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signIn } = useAuth();
+  const { signIn, user, profile } = useAuth();
   const router = useRouter();
+
+  // Redirect if already logged in as admin
+  useEffect(() => {
+    if (user && profile?.role === 'admin') {
+      window.location.href = '/';
+    }
+  }, [user, profile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,10 +26,12 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      router.push('/');
+      // Wait a bit for the session to be properly set, then redirect
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
     } catch (err: any) {
       setError(err.message || 'Failed to sign in. Please check your credentials.');
-    } finally {
       setLoading(false);
     }
   };

@@ -13,17 +13,8 @@ export async function middleware(request: NextRequest) {
   const publicPaths = ['/login', '/unauthorized'];
   const isPublicPath = publicPaths.some(path => pathname.includes(path));
 
-  // If it's a public path, just apply i18n middleware
-  if (isPublicPath) {
-    return intlMiddleware(request);
-  }
-
-  // Create a Supabase client for server-side
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+  // Create response
+  let response = intlMiddleware(request);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,16 +25,6 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: any) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({
             name,
             value,
@@ -51,16 +32,6 @@ export async function middleware(request: NextRequest) {
           });
         },
         remove(name: string, options: any) {
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          });
           response.cookies.set({
             name,
             value: '',
@@ -75,6 +46,11 @@ export async function middleware(request: NextRequest) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
+
+  // If it's a public path, return early
+  if (isPublicPath) {
+    return response;
+  }
 
   // If no session, redirect to login
   if (!session) {
@@ -95,8 +71,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(unauthorizedUrl);
   }
 
-  // User is authenticated and is admin, apply i18n middleware
-  return intlMiddleware(request);
+  // User is authenticated and is admin
+  return response;
 }
 
 export const config = {
