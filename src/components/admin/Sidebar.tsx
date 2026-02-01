@@ -10,11 +10,12 @@ import {
   LogOut,
   ChevronRight,
   ChevronLeft,
-  Menu
+  Menu,
+  ChevronDown
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
-type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings';
+type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings' | 'subcategories' | 'facilities';
 
 interface SidebarProps {
   currentView: ViewType;
@@ -24,11 +25,21 @@ interface SidebarProps {
 export function Sidebar({ currentView, onViewChange }: SidebarProps) {
   const { signOut, profile } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
 
   const navItems = [
     { name: 'Dashboard', view: 'dashboard' as ViewType, icon: LayoutDashboard },
     { name: 'Destination', view: 'destinations' as ViewType, icon: MapPin },
-    { name: 'Categories', view: 'categories' as ViewType, icon: Layers },
+    { 
+      name: 'Categories', 
+      view: 'categories' as ViewType, 
+      icon: Layers,
+      hasSubmenu: true,
+      submenu: [
+        { name: 'Subcategories', view: 'subcategories' as ViewType },
+        { name: 'Facilities', view: 'facilities' as ViewType }
+      ]
+    },
     { name: 'Bookings', view: 'bookings' as ViewType, icon: Calendar },
   ];
 
@@ -72,23 +83,58 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
       <nav className="flex-1 px-4 space-y-1 mt-4">
         {navItems.map((item) => {
           const active = currentView === item.view;
+          const hasSubmenu = item.hasSubmenu;
+          const isExpanded = hasSubmenu && categoriesExpanded;
+          
           return (
-            <button
-              key={item.name}
-              onClick={() => onViewChange(item.view)}
-              className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-[20px] transition-all duration-200 group ${
-                active 
-                  ? 'bg-black text-white shadow-lg shadow-black/10' 
-                  : 'text-gray-900 hover:bg-gray-50'
-              }`}
-              title={isCollapsed ? item.name : undefined}
-            >
-              <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
-                <item.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-900'}`} />
-                {!isCollapsed && <span className="font-medium">{item.name}</span>}
-              </div>
-              {!isCollapsed && active && <ChevronRight className="w-4 h-4 text-white/60" />}
-            </button>
+            <div key={item.name}>
+              <button
+                onClick={() => {
+                  if (hasSubmenu && !isCollapsed) {
+                    setCategoriesExpanded(!categoriesExpanded);
+                  }
+                  onViewChange(item.view);
+                }}
+                className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-[20px] transition-all duration-200 group ${
+                  active 
+                    ? 'bg-black text-white shadow-lg shadow-black/10' 
+                    : 'text-gray-900 hover:bg-gray-50'
+                }`}
+                title={isCollapsed ? item.name : undefined}
+              >
+                <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
+                  <item.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-900'}`} />
+                  {!isCollapsed && <span className="font-medium">{item.name}</span>}
+                </div>
+                {!isCollapsed && hasSubmenu && (
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''} ${active ? 'text-white/60' : 'text-gray-900/60'}`} />
+                )}
+                {!isCollapsed && !hasSubmenu && active && <ChevronRight className="w-4 h-4 text-white/60" />}
+              </button>
+              
+              {/* Submenu */}
+              {hasSubmenu && isExpanded && !isCollapsed && item.submenu && (
+                <div className="ml-8 mt-1 space-y-1">
+                  {item.submenu.map((subItem) => {
+                    const subActive = currentView === subItem.view;
+                    return (
+                      <button
+                        key={subItem.name}
+                        onClick={() => onViewChange(subItem.view)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-[20px] transition-all duration-200 text-sm ${
+                          subActive
+                            ? 'bg-gray-100 text-gray-900 font-medium'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        }`}
+                      >
+                        <span>{subItem.name}</span>
+                        {subActive && <ChevronRight className="w-3 h-3" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>

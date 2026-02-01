@@ -38,12 +38,14 @@ import { Sidebar } from "@/components/admin/Sidebar";
 import { UsersSidebar } from "@/components/admin/UsersSidebar";
 import { QuickTabs } from "@/components/admin/QuickTabs";
 import { CategoriesView } from "@/components/admin/CategoriesView";
+import { SubcategoriesView } from "@/components/admin/SubcategoriesView";
 import { BookingsView } from "@/components/admin/BookingsView";
+import { FacilitiesView } from "@/components/admin/FacilitiesView";
 import { useBookingManagement } from "@/hooks/useBookingManagement";
 
 const queryClient = new QueryClient();
 
-type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings';
+type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings' | 'subcategories' | 'facilities';
 
 function AdminContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -183,6 +185,12 @@ function AdminContent() {
 
       case 'categories':
         return <CategoriesView />;
+
+      case 'subcategories':
+        return <SubcategoriesView />;
+
+      case 'facilities':
+        return <FacilitiesView />;
 
       case 'bookings':
         return <BookingsView />;

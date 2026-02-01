@@ -1,16 +1,47 @@
 'use client';
 
-import { useState } from 'react';
-import { useParentCategories, useCreateParentCategory, useDeleteParentCategory } from '@/hooks/useCategoryManagement';
-import { Plus, Edit, Trash2, Loader2, Layers } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { useParentCategories, useCreateParentCategory, useDeleteParentCategory, useSubcategories } from '@/hooks/useCategoryManagement';
+import { useFacilities } from '@/hooks/useFacilities';
+import { Plus, Edit, Trash2, Loader2, Layers, Tag, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CategoryEditModal } from './CategoryEditModal';
+import { ParentCategory } from '@/lib/api';
 
 export function CategoriesView() {
   const { data: categories, isLoading: loading } = useParentCategories();
+  const { data: allSubcategories, isLoading: subcategoriesLoading } = useSubcategories();
+  const { data: allFacilities, isLoading: facilitiesLoading } = useFacilities();
   const createMutation = useCreateParentCategory();
   const deleteMutation = useDeleteParentCategory();
   const [isCreating, setIsCreating] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [editingCategory, setEditingCategory] = useState<ParentCategory | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Calculate counts for each category
+  const categoryCounts = useMemo(() => {
+    if (!categories) return {};
+    
+    const counts: Record<string, { subcategories: number; facilities: number }> = {};
+    
+    categories.forEach(category => {
+      const subcategoryCount = allSubcategories ? allSubcategories.filter(
+        sub => sub.parent_category_id === category.id
+      ).length : 0;
+      
+      const facilityCount = allFacilities ? allFacilities.filter(
+        facility => facility.category_id === category.id
+      ).length : 0;
+      
+      counts[category.id] = {
+        subcategories: subcategoryCount,
+        facilities: facilityCount
+      };
+    });
+    
+    return counts;
+  }, [categories, allSubcategories, allFacilities]);
 
   const handleCreate = async () => {
     if (!newCategoryName.trim()) return;
@@ -34,7 +65,21 @@ export function CategoriesView() {
     }
   };
 
+  const handleEdit = (category: ParentCategory) => {
+    setEditingCategory(category);
+    setIsEditModalOpen(true);
+  };
+
   return (
+    <>
+      <CategoryEditModal 
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingCategory(null);
+        }}
+        category={editingCategory}
+      />
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-end justify-between">
@@ -91,33 +136,82 @@ export function CategoriesView() {
             <Loader2 className="h-8 w-8 animate-spin text-gray-900" />
           </div>
         ) : categories && categories.length > 0 ? (
-          categories.map((category) => (
-            <div 
-              key={category.id} 
-              className="bg-white p-6 rounded-[20px] border border-gray-100 shadow-sm hover:shadow-md transition-all group"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 bg-purple-50 rounded-[20px] flex items-center justify-center text-purple-600">
-                  <Layers className="w-6 h-6" />
+          categories.map((category) => {
+            const counts = categoryCounts[category.id] || { subcategories: 0, facilities: 0 };
+            
+            return (
+              <div 
+                key={category.id} 
+                className="bg-white p-6 rounded-[24px] border border-gray-200 shadow-lg shadow-black/5 hover:shadow-xl hover:shadow-black/10 transition-all group cursor-pointer"
+                onClick={() => handleEdit(category)}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-14 h-14 bg-purple-50 rounded-[20px] flex items-center justify-center text-purple-600">
+                    <Layers className="w-7 h-7" />
+                  </div>
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(category);
+                      }}
+                      className="p-2.5 hover:bg-gray-50 rounded-full transition-colors"
+                    >
+                      <Edit className="w-4 h-4 text-gray-900" />
+                    </button>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(category.id);
+                      }}
+                      className="p-2.5 hover:bg-red-50 rounded-full transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-2 hover:bg-gray-50 rounded-full transition-colors">
-                    <Edit className="w-4 h-4 text-gray-900" />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(category.id)}
-                    className="p-2 hover:bg-red-50 rounded-full transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                  </button>
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{category.name}</h3>
+                
+                <div className="flex items-center gap-2 mb-4">
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                    category.status === 'active' 
+                      ? 'bg-green-50 text-green-700' 
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {category.status === 'active' ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+
+                {/* Counts Section */}
+                <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center">
+                      <Tag className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-900 font-medium">Subcategories</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {subcategoriesLoading ? '...' : counts.subcategories}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-purple-50 rounded-full flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-900 font-medium">Facilities</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {facilitiesLoading ? '...' : counts.facilities}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-gray-900">{category.name}</h3>
-              <p className="text-sm text-gray-600 mt-1">
-                {category.status === 'active' ? 'Active' : 'Inactive'}
-              </p>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div className="col-span-full text-center py-12">
             <Layers className="w-12 h-12 text-gray-900 mx-auto mb-4" />
@@ -126,5 +220,6 @@ export function CategoriesView() {
         )}
       </div>
     </div>
+    </>
   );
 }
