@@ -114,7 +114,9 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label>{t('image')}</Label>
+        <Label>
+          {t('image')} <span className="text-red-500">*</span>
+        </Label>
         <div className="flex gap-2">
           <Button
             type="button"
@@ -225,6 +227,8 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
             onChange={(e) => handleUrlChange(e.target.value)}
             disabled={disabled}
             required
+            pattern="https?://.+"
+            title="Please enter a valid URL starting with http:// or https://"
           />
         </div>
       )}
