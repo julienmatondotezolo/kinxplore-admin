@@ -137,5 +137,15 @@
     "delete": "Delete",
     "edit": "Edit",
     "close": "Close"
+  },
+  "imageUpload": {
+    "image": "Image",
+    "uploadFile": "Upload File",
+    "fromURL": "From URL",
+    "chooseFileOrDrag": "Choose a file or drag & drop it here",
+    "imageFormats": "JPEG, PNG formats, up to 50MB",
+    "browseFile": "Browse File",
+    "imageUrlPlaceholder": "Put image URL here (from social media, websites, etc.)",
+    "imageUploadHint": "Upload one image (JPEG or PNG only). You can upload a file or provide a URL."
   }
 }

@@ -137,5 +137,15 @@
     "delete": "Supprimer",
     "edit": "Modifier",
     "close": "Fermer"
+  },
+  "imageUpload": {
+    "image": "Image",
+    "uploadFile": "Télécharger un Fichier",
+    "fromURL": "Depuis une URL",
+    "chooseFileOrDrag": "Choisissez un fichier ou glissez-déposez-le ici",
+    "imageFormats": "Formats JPEG, PNG, jusqu'à 50 Mo",
+    "browseFile": "Parcourir les Fichiers",
+    "imageUrlPlaceholder": "Mettez l'URL de l'image ici (réseaux sociaux, sites web, etc.)",
+    "imageUploadHint": "Téléchargez une image (JPEG ou PNG uniquement). Vous pouvez télécharger un fichier ou fournir une URL."
   }
 }

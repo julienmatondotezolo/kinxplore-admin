@@ -191,9 +191,11 @@ export function DestinationForm({
       return;
     }
 
-    // Handle image upload if a new file is selected (not a URL string)
+    // Handle image upload based on type
     let imageUrl = formData.image;
+    
     if (imageFile instanceof File) {
+      // Upload file to Supabase Storage
       setIsUploadingImage(true);
       try {
         const formDataToUpload = new FormData();
@@ -215,9 +217,21 @@ export function DestinationForm({
       } finally {
         setIsUploadingImage(false);
       }
-    } else if (typeof imageFile === 'string') {
-      // If imageFile is a string, it means URL was already uploaded
-      imageUrl = imageFile;
+    } else if (typeof imageFile === 'string' && imageFile.trim()) {
+      // Upload from URL to Supabase Storage
+      setIsUploadingImage(true);
+      try {
+        const { data } = await api.post('/admin/destinations/upload-image-url', { url: imageFile });
+        imageUrl = data.url;
+        toast.success("Image uploaded from URL successfully!");
+      } catch (error) {
+        console.error("Failed to upload image from URL:", error);
+        toast.error("Failed to upload image from URL. Please try again.");
+        setIsUploadingImage(false);
+        return;
+      } finally {
+        setIsUploadingImage(false);
+      }
     }
     
     // Filter out empty opening hours
@@ -238,27 +252,6 @@ export function DestinationForm({
 
   const handleImageChange = (file: File | string | null) => {
     setImageFile(file);
-    if (typeof file === 'string') {
-      setFormData({ ...formData, image: file });
-    }
-  };
-
-  const handleUrlUpload = async (url: string) => {
-    setIsUploadingImage(true);
-    try {
-      const { data } = await api.post('/admin/destinations/upload-image-url', { url });
-      const uploadedImageUrl = data.url;
-      setFormData({ ...formData, image: uploadedImageUrl });
-      // Set imageFile to the uploaded URL so we don't re-upload in handleSubmit
-      setImageFile(uploadedImageUrl);
-      toast.success("Image uploaded from URL successfully!");
-    } catch (error) {
-      console.error("Failed to upload image from URL:", error);
-      toast.error("Failed to upload image from URL. Please try again.");
-      throw error;
-    } finally {
-      setIsUploadingImage(false);
-    }
   };
 
   const addCategory = () => {
@@ -356,7 +349,6 @@ export function DestinationForm({
             <ImageUpload
               value={formData.image}
               onChange={handleImageChange}
-              onUrlUpload={handleUrlUpload}
               disabled={isLoading || isUploadingImage}
             />
 

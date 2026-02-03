@@ -137,5 +137,15 @@
     "delete": "Verwijderen",
     "edit": "Bewerken",
     "close": "Sluiten"
+  },
+  "imageUpload": {
+    "image": "Afbeelding",
+    "uploadFile": "Bestand Uploaden",
+    "fromURL": "Vanaf URL",
+    "chooseFileOrDrag": "Kies een bestand of sleep het hier",
+    "imageFormats": "JPEG, PNG formaten, tot 50MB",
+    "browseFile": "Bestand Bladeren",
+    "imageUrlPlaceholder": "Plaats hier de afbeeldings-URL (van sociale media, websites, enz.)",
+    "imageUploadHint": "Upload één afbeelding (alleen JPEG of PNG). U kunt een bestand uploaden of een URL opgeven."
   }
 }
