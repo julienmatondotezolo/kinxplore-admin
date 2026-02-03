@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,8 @@ import {
 import { Destination, CategoryAssignment, OpeningHours } from "@/lib/api";
 import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
 import { Loader2, Plus, X, Clock } from "lucide-react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 // Subcategory selector component that loads subcategories for a specific parent
 function SubcategorySelector({
@@ -81,6 +84,9 @@ export function DestinationForm({
     ratings: 0,
   });
 
+  const [imageFile, setImageFile] = useState<File | string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const [openingHours, setOpeningHours] = useState<OpeningHours>({
     monday: "",
     tuesday: "",
@@ -106,6 +112,9 @@ export function DestinationForm({
         location: destination.location || "",
         ratings: destination.ratings || 0,
       });
+
+      // Reset image file state to null when editing existing destination
+      setImageFile(null);
 
       // Set opening hours
       if (destination.opening_hours) {
@@ -138,6 +147,7 @@ export function DestinationForm({
         location: "",
         ratings: 0,
       });
+      setImageFile(null);
       setOpeningHours({
         monday: "",
         tuesday: "",
@@ -151,34 +161,63 @@ export function DestinationForm({
     }
   }, [destination, open]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
     if (!formData.name || !formData.name.trim()) {
-      alert("Please enter a destination name.");
+      toast.error("Please enter a destination name.");
       return;
     }
     
     if (!formData.description || !formData.description.trim()) {
-      alert("Please enter a destination description.");
+      toast.error("Please enter a destination description.");
       return;
     }
     
     if (!formData.location || !formData.location.trim()) {
-      alert("Please enter a destination location.");
+      toast.error("Please enter a destination location.");
       return;
     }
     
     if (formData.price === undefined || formData.price === null || formData.price < 0) {
-      alert("Please enter a valid price (minimum 0).");
+      toast.error("Please enter a valid price (minimum 0).");
       return;
     }
     
     // Validate that at least one category is selected
     if (categories.length === 0) {
-      alert("Please add at least one category to the destination.");
+      toast.error("Please add at least one category to the destination.");
       return;
+    }
+
+    // Handle image upload if a new file is selected (not a URL string)
+    let imageUrl = formData.image;
+    if (imageFile instanceof File) {
+      setIsUploadingImage(true);
+      try {
+        const formDataToUpload = new FormData();
+        formDataToUpload.append('file', imageFile);
+        
+        const { data } = await api.post('/admin/destinations/upload-image', formDataToUpload, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        
+        imageUrl = data.url;
+        toast.success("Image uploaded successfully!");
+      } catch (error) {
+        console.error("Failed to upload image:", error);
+        toast.error("Failed to upload image. Please try again.");
+        setIsUploadingImage(false);
+        return;
+      } finally {
+        setIsUploadingImage(false);
+      }
+    } else if (typeof imageFile === 'string') {
+      // If imageFile is a string, it means URL was already uploaded
+      imageUrl = imageFile;
     }
     
     // Filter out empty opening hours
@@ -191,9 +230,35 @@ export function DestinationForm({
 
     onSubmit({
       ...formData,
+      image: imageUrl,
       category_ids: categories,
       opening_hours: Object.keys(filteredOpeningHours).length > 0 ? filteredOpeningHours : undefined,
     });
+  };
+
+  const handleImageChange = (file: File | string | null) => {
+    setImageFile(file);
+    if (typeof file === 'string') {
+      setFormData({ ...formData, image: file });
+    }
+  };
+
+  const handleUrlUpload = async (url: string) => {
+    setIsUploadingImage(true);
+    try {
+      const { data } = await api.post('/admin/destinations/upload-image-url', { url });
+      const uploadedImageUrl = data.url;
+      setFormData({ ...formData, image: uploadedImageUrl });
+      // Set imageFile to the uploaded URL so we don't re-upload in handleSubmit
+      setImageFile(uploadedImageUrl);
+      toast.success("Image uploaded from URL successfully!");
+    } catch (error) {
+      console.error("Failed to upload image from URL:", error);
+      toast.error("Failed to upload image from URL. Please try again.");
+      throw error;
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const addCategory = () => {
@@ -287,18 +352,13 @@ export function DestinationForm({
               />
             </div>
 
-            {/* Image URL */}
-            <div className="space-y-2">
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
-                value={formData.image}
-                onChange={(e) =>
-                  setFormData({ ...formData, image: e.target.value })
-                }
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
+            {/* Image Upload */}
+            <ImageUpload
+              value={formData.image}
+              onChange={handleImageChange}
+              onUrlUpload={handleUrlUpload}
+              disabled={isLoading || isUploadingImage}
+            />
 
             {/* Location */}
             <div className="space-y-2">
@@ -475,12 +535,12 @@ export function DestinationForm({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isUploadingImage}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {destination ? "Update" : "Create"}
+            <Button type="submit" disabled={isLoading || isUploadingImage}>
+              {(isLoading || isUploadingImage) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isUploadingImage ? "Uploading Image..." : (destination ? "Update" : "Create")}
             </Button>
           </DialogFooter>
         </form>
