@@ -1,21 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  MapPin, 
-  Layers, 
-  Calendar, 
-  Settings, 
+import {
+  LayoutDashboard,
+  MapPin,
+  Layers,
+  Calendar,
+  Settings,
   LogOut,
   ChevronRight,
   ChevronLeft,
   Menu,
-  ChevronDown
+  ChevronDown,
+  Route
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
-type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings' | 'subcategories' | 'facilities';
+type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings' | 'subcategories' | 'facilities' | 'trips';
 
 interface SidebarProps {
   currentView: ViewType;
@@ -40,6 +41,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
         { name: 'Facilities', view: 'facilities' as ViewType }
       ]
     },
+    { name: 'Trips', view: 'trips' as ViewType, icon: Route },
     { name: 'Bookings', view: 'bookings' as ViewType, icon: Calendar },
   ];
 

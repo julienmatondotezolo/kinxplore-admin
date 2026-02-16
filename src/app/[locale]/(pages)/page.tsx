@@ -41,11 +41,12 @@ import { CategoriesView } from "@/components/admin/CategoriesView";
 import { SubcategoriesView } from "@/components/admin/SubcategoriesView";
 import { BookingsView } from "@/components/admin/BookingsView";
 import { FacilitiesView } from "@/components/admin/FacilitiesView";
+import { TripsView } from "@/components/admin/TripsView";
 import { useBookingManagement } from "@/hooks/useBookingManagement";
 
 const queryClient = new QueryClient();
 
-type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings' | 'subcategories' | 'facilities';
+type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings' | 'subcategories' | 'facilities' | 'trips';
 
 function AdminContent() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -191,6 +192,9 @@ function AdminContent() {
 
       case 'facilities':
         return <FacilitiesView />;
+
+      case 'trips':
+        return <TripsView />;
 
       case 'bookings':
         return <BookingsView />;

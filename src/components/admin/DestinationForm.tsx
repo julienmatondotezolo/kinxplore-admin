@@ -14,9 +14,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Destination, CategoryAssignment, OpeningHours } from "@/lib/api";
+import { Destination, CategoryAssignment, OpeningHours, DestinationImage, addDestinationImages, removeDestinationImage } from "@/lib/api";
 import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
-import { Loader2, Plus, X, Clock } from "lucide-react";
+import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, GripVertical } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -87,6 +87,12 @@ export function DestinationForm({
   const [imageFile, setImageFile] = useState<File | string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
+  // Additional images state
+  const [additionalImages, setAdditionalImages] = useState<DestinationImage[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [isAddingImage, setIsAddingImage] = useState(false);
+  const [removingImageId, setRemovingImageId] = useState<string | null>(null);
+
   const [openingHours, setOpeningHours] = useState<OpeningHours>({
     monday: "",
     tuesday: "",
@@ -115,6 +121,9 @@ export function DestinationForm({
 
       // Reset image file state to null when editing existing destination
       setImageFile(null);
+
+      // Set additional images
+      setAdditionalImages(destination.images?.sort((a, b) => a.sort_order - b.sort_order) || []);
 
       // Set opening hours
       if (destination.opening_hours) {
@@ -148,6 +157,8 @@ export function DestinationForm({
         ratings: 0,
       });
       setImageFile(null);
+      setAdditionalImages([]);
+      setNewImageUrl("");
       setOpeningHours({
         monday: "",
         tuesday: "",
@@ -276,6 +287,37 @@ export function DestinationForm({
     setCategories(updated);
   };
 
+  const handleAddAdditionalImage = async () => {
+    if (!newImageUrl.trim() || !destination?.id) return;
+    setIsAddingImage(true);
+    try {
+      const result = await addDestinationImages(destination.id, [{ url: newImageUrl.trim() }]);
+      setAdditionalImages((prev) => [...prev, ...result]);
+      setNewImageUrl("");
+      toast.success("Image added successfully!");
+    } catch (error) {
+      console.error("Failed to add image:", error);
+      toast.error("Failed to add image.");
+    } finally {
+      setIsAddingImage(false);
+    }
+  };
+
+  const handleRemoveAdditionalImage = async (imageId: string) => {
+    if (!destination?.id) return;
+    setRemovingImageId(imageId);
+    try {
+      await removeDestinationImage(destination.id, imageId);
+      setAdditionalImages((prev) => prev.filter((img) => img.id !== imageId));
+      toast.success("Image removed.");
+    } catch (error) {
+      console.error("Failed to remove image:", error);
+      toast.error("Failed to remove image.");
+    } finally {
+      setRemovingImageId(null);
+    }
+  };
+
   const setAllDays24Hours = () => {
     setOpeningHours({
       monday: "00:00-23:59",
@@ -351,6 +393,72 @@ export function DestinationForm({
               onChange={handleImageChange}
               disabled={isLoading || isUploadingImage}
             />
+
+            {/* Additional Images (only when editing) */}
+            {destination && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                  <Label>Additional Images</Label>
+                </div>
+
+                {/* Existing images */}
+                {additionalImages.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3">
+                    {additionalImages.map((img) => (
+                      <div key={img.id} className="relative group rounded-lg overflow-hidden border border-gray-200">
+                        <img
+                          src={img.url}
+                          alt={img.alt_text || "Additional image"}
+                          className="w-full h-24 object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAdditionalImage(img.id)}
+                          disabled={removingImageId === img.id}
+                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                        >
+                          {removingImageId === img.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3 w-3" />
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add new image */}
+                <div className="flex gap-2">
+                  <Input
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    placeholder="Paste image URL..."
+                    className="flex-1 text-sm"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddAdditionalImage}
+                    disabled={!newImageUrl.trim() || isAddingImage}
+                    size="sm"
+                  >
+                    {isAddingImage ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-1" />
+                        Add
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Add additional gallery images for this destination. These appear in the detail page gallery.
+                </p>
+              </div>
+            )}
 
             {/* Location */}
             <div className="space-y-2">
