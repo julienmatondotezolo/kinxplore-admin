@@ -67,7 +67,7 @@ export function DestinationDetails({
                   variant="outline"
                   size="sm"
                   onClick={() => onReactivate(destination)}
-                  className="gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
+                  className="gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
                   disabled={isReactivating}
                 >
                   <RotateCcw className="h-4 w-4" />

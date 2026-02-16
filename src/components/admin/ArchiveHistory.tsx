@@ -41,13 +41,13 @@ export function ArchiveHistory({
   const getOperationColor = (operation: string) => {
     switch (operation) {
       case "CREATE":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
+        return "bg-green-100 text-green-800";
       case "UPDATE":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
+        return "bg-blue-100 text-blue-800";
       case "DELETE":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -62,7 +62,7 @@ export function ArchiveHistory({
   const renderHistoryEntry = (entry: ArchiveEntry) => (
     <div
       key={entry.id}
-      className="p-4 rounded-lg border bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors"
+      className="p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-2">

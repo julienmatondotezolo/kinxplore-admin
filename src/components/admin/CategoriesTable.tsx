@@ -217,8 +217,8 @@ export function CategoriesTable({
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Parents</p>
               <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1">{activeParents}</p>
             </div>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-              <FolderTree className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+              <FolderTree className="h-5 w-5 text-blue-600" />
             </div>
           </div>
         </div>
@@ -229,8 +229,8 @@ export function CategoriesTable({
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Inactive Parents</p>
               <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1">{inactiveParents}</p>
             </div>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-900/30">
-              <FolderTree className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+              <FolderTree className="h-5 w-5 text-gray-600" />
             </div>
           </div>
         </div>
@@ -241,8 +241,8 @@ export function CategoriesTable({
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Subs</p>
               <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1">{activeSubs}</p>
             </div>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-              <Tag className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+              <Tag className="h-5 w-5 text-purple-600" />
             </div>
           </div>
         </div>
@@ -253,8 +253,8 @@ export function CategoriesTable({
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Inactive Subs</p>
               <p className="text-lg sm:text-2xl font-bold mt-0.5 sm:mt-1">{inactiveSubs}</p>
             </div>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-900/30">
-              <Tag className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+              <Tag className="h-5 w-5 text-gray-600" />
             </div>
           </div>
         </div>
@@ -375,7 +375,7 @@ export function CategoriesTable({
                                   variant="outline"
                                   size="sm"
                                   onClick={() => onReactivateParent(category)}
-                                  className="gap-1 sm:gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950 text-xs sm:text-sm h-8 px-2 sm:px-3"
+                                  className="gap-1 sm:gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 text-xs sm:text-sm h-8 px-2 sm:px-3"
                                   disabled={isReactivating}
                                 >
                                   <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -512,7 +512,7 @@ export function CategoriesTable({
                                   variant="outline"
                                   size="sm"
                                   onClick={() => onReactivateSub(subcategory)}
-                                  className="gap-1 sm:gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950 text-xs sm:text-sm h-8 px-2 sm:px-3"
+                                  className="gap-1 sm:gap-2 text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 text-xs sm:text-sm h-8 px-2 sm:px-3"
                                   disabled={isReactivating}
                                 >
                                   <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />

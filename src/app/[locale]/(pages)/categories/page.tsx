@@ -232,8 +232,8 @@ function CategoriesContent() {
                 </p>
                 <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2">{totalCategories}</p>
               </div>
-              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <Layers className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+                <Layers className="h-6 w-6 text-purple-600" />
               </div>
             </div>
           </div>
@@ -246,8 +246,8 @@ function CategoriesContent() {
                 </p>
                 <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2">{activeParents}</p>
               </div>
-              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <FolderTree className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                <FolderTree className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -260,8 +260,8 @@ function CategoriesContent() {
                 </p>
                 <p className="text-xl sm:text-3xl font-bold mt-1 sm:mt-2">{activeSubs}</p>
               </div>
-              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                <Tag className="h-6 w-6 text-green-600 dark:text-green-400" />
+              <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+                <Tag className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </div>

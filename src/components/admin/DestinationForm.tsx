@@ -584,7 +584,7 @@ export function DestinationForm({
                   return (
                     <div
                       key={index}
-                      className="flex items-center gap-2 p-3 rounded-lg border bg-gray-100 dark:bg-gray-800/50"
+                      className="flex items-center gap-2 p-3 rounded-lg border bg-gray-100"
                     >
                       <div className="flex-1">
                         <p className="text-sm font-medium">{parent?.name}</p>

@@ -6,12 +6,12 @@ export default function UnauthorizedPage() {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 text-center shadow-lg dark:bg-gray-800">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 text-center shadow-lg">
         <div className="mb-6">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
             <svg
-              className="h-8 w-8 text-red-600 dark:text-red-400"
+              className="h-8 w-8 text-red-600"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -26,16 +26,16 @@ export default function UnauthorizedPage() {
           </div>
         </div>
 
-        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="mb-2 text-2xl font-bold text-gray-900">
           Access Denied
         </h1>
-        <p className="mb-6 text-gray-600 dark:text-gray-400">
+        <p className="mb-6 text-gray-600">
           You don't have permission to access the admin panel. Admin access is required.
         </p>
 
         <button
           onClick={() => router.push('/login')}
-          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           Back to Login
         </button>
