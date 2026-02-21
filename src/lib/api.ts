@@ -56,6 +56,7 @@ export interface Destination {
   ratings: number;
   status: 'active' | 'inactive';
   opening_hours?: OpeningHours | null;
+  highlights?: string[];
   created_at: string;
   updated_at: string;
   categories: CategoryInfo[];
@@ -76,6 +77,7 @@ export interface CreateDestinationDto {
   ratings?: number;
   category_ids?: CategoryAssignment[];
   opening_hours?: OpeningHours;
+  highlights?: string[];
 }
 
 export interface UpdateDestinationDto {
@@ -87,6 +89,7 @@ export interface UpdateDestinationDto {
   ratings?: number;
   category_ids?: CategoryAssignment[];
   opening_hours?: OpeningHours;
+  highlights?: string[];
 }
 
 export interface ArchiveEntry {

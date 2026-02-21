@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Destination, CategoryAssignment, OpeningHours, DestinationImage, addDestinationImages, removeDestinationImage } from "@/lib/api";
 import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
-import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, GripVertical } from "lucide-react";
+import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, GripVertical, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -106,6 +106,9 @@ export function DestinationForm({
   const [categories, setCategories] = useState<CategoryAssignment[]>([]);
   const [selectedParent, setSelectedParent] = useState<string>("");
 
+  const [highlights, setHighlights] = useState<string[]>([]);
+  const [newHighlight, setNewHighlight] = useState("");
+
   const { data: parentCategories } = useParentCategories();
 
   useEffect(() => {
@@ -140,6 +143,10 @@ export function DestinationForm({
         });
       }
 
+      // Set highlights
+      setHighlights(destination.highlights || []);
+      setNewHighlight("");
+
       // Convert categories to CategoryAssignment format
       const cats: CategoryAssignment[] = destination.categories.map((cat) => ({
         parent_category_id: cat.parent.id,
@@ -159,6 +166,8 @@ export function DestinationForm({
       setImageFile(null);
       setAdditionalImages([]);
       setNewImageUrl("");
+      setHighlights([]);
+      setNewHighlight("");
       setOpeningHours({
         monday: "",
         tuesday: "",
@@ -258,6 +267,7 @@ export function DestinationForm({
       image: imageUrl,
       category_ids: categories,
       opening_hours: Object.keys(filteredOpeningHours).length > 0 ? filteredOpeningHours : undefined,
+      highlights: highlights.length > 0 ? highlights : undefined,
     });
   };
 
@@ -562,6 +572,72 @@ export function DestinationForm({
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Highlights */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-muted-foreground" />
+                <Label>Highlights</Label>
+              </div>
+
+              {/* Existing highlights */}
+              {highlights.length > 0 && (
+                <div className="space-y-2">
+                  {highlights.map((highlight, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 p-2 rounded-lg border bg-gray-50"
+                    >
+                      <span className="flex-1 text-sm">{highlight}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setHighlights(highlights.filter((_, i) => i !== index))
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add new highlight */}
+              <div className="flex gap-2">
+                <Input
+                  value={newHighlight}
+                  onChange={(e) => setNewHighlight(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newHighlight.trim()) {
+                      e.preventDefault();
+                      setHighlights([...highlights, newHighlight.trim()]);
+                      setNewHighlight("");
+                    }
+                  }}
+                  placeholder="Add a highlight..."
+                  className="flex-1 text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    if (newHighlight.trim()) {
+                      setHighlights([...highlights, newHighlight.trim()]);
+                      setNewHighlight("");
+                    }
+                  }}
+                  disabled={!newHighlight.trim()}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Add key highlights for this destination. Press Enter or click Add.
+              </p>
             </div>
 
             {/* Categories */}

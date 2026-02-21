@@ -20,6 +20,8 @@ import {
   Edit,
   Clock,
   RotateCcw,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react";
 
 interface DestinationDetailsProps {
@@ -189,6 +191,24 @@ export function DestinationDetails({
                       </span>
                     )}
                   </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Highlights */}
+          {destination.highlights && destination.highlights.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Sparkles className="h-4 w-4" />
+                Highlights
+              </div>
+              <div className="space-y-1">
+                {destination.highlights.map((highlight, idx) => (
+                  <div key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">
+                    <CheckCircle2 className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <span className="text-sm">{highlight}</span>
+                  </div>
                 ))}
               </div>
             </div>

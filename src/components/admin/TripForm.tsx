@@ -86,6 +86,22 @@ export function TripForm({ open, onClose, onSubmit, trip, isLoading }: TripFormP
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Only JPEG and PNG images are allowed.');
+      e.target.value = '';
+      return;
+    }
+
+    // Validate file size (50MB max)
+    const maxSize = 50 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error('File size must be less than 50MB.');
+      e.target.value = '';
+      return;
+    }
+
     setImageUploading(true);
     try {
       const formDataUpload = new FormData();
@@ -95,8 +111,10 @@ export function TripForm({ open, onClose, onSubmit, trip, isLoading }: TripFormP
       });
       setFormData(prev => ({ ...prev, image: data.url }));
       toast.success('Image uploaded');
-    } catch {
-      toast.error('Failed to upload image');
+    } catch (error: any) {
+      console.error('Failed to upload image:', error);
+      const message = error?.response?.data?.message || 'Failed to upload image. Please try again.';
+      toast.error(message);
     } finally {
       setImageUploading(false);
     }
@@ -310,7 +328,7 @@ export function TripForm({ open, onClose, onSubmit, trip, isLoading }: TripFormP
                   <Upload className="w-4 h-4 text-gray-400" />
                 )}
                 <span className="text-sm text-gray-500">Upload image</span>
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                <input type="file" accept="image/jpeg,image/png" onChange={handleImageUpload} className="hidden" />
               </label>
             </div>
 
