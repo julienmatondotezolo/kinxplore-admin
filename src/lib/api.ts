@@ -272,6 +272,16 @@ export const reactivateSubcategory = async (id: string): Promise<Subcategory> =>
   return data;
 };
 
+// Trip Images
+export interface TripImage {
+  id: string;
+  trip_id: string;
+  url: string;
+  sort_order: number;
+  alt_text?: string;
+  created_at: string;
+}
+
 // Trips
 export interface Trip {
   id: string;
@@ -290,6 +300,7 @@ export interface Trip {
   created_at: string;
   updated_at: string;
   destinations?: Array<{ id: string; name: string; image: string; location: string }>;
+  images?: TripImage[];
 }
 
 export interface CreateTripDto {
@@ -348,6 +359,30 @@ export const deleteTrip = async (id: string): Promise<void> => {
 
 export const reactivateTrip = async (id: string): Promise<Trip> => {
   const { data } = await api.put(`/admin/trips/${id}/reactivate`);
+  return data;
+};
+
+// Trip Images
+export const addTripImages = async (
+  tripId: string,
+  images: Array<{ url: string; alt_text?: string }>,
+): Promise<TripImage[]> => {
+  const { data } = await api.post(`/admin/trips/${tripId}/images`, { images });
+  return data;
+};
+
+export const removeTripImage = async (
+  tripId: string,
+  imageId: string,
+): Promise<void> => {
+  await api.delete(`/admin/trips/${tripId}/images/${imageId}`);
+};
+
+export const reorderTripImages = async (
+  tripId: string,
+  imageIds: string[],
+): Promise<TripImage[]> => {
+  const { data } = await api.put(`/admin/trips/${tripId}/images/reorder`, { image_ids: imageIds });
   return data;
 };
 
