@@ -12,11 +12,12 @@ import {
   ChevronLeft,
   Menu,
   ChevronDown,
-  Route
+  Route,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
-type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings' | 'subcategories' | 'facilities' | 'trips';
+type ViewType = 'dashboard' | 'destinations' | 'categories' | 'bookings' | 'subcategories' | 'facilities' | 'trips' | 'inquiries';
 
 interface SidebarProps {
   currentView: ViewType;
@@ -43,6 +44,7 @@ export function Sidebar({ currentView, onViewChange }: SidebarProps) {
     },
     { name: 'Trips', view: 'trips' as ViewType, icon: Route },
     { name: 'Bookings', view: 'bookings' as ViewType, icon: Calendar },
+    { name: 'Inquiries', view: 'inquiries' as ViewType, icon: MessageSquare },
   ];
 
   return (

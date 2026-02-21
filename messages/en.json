@@ -129,6 +129,28 @@
       "requiresAction": "Requires action"
     }
   },
+  "inquiries": {
+    "title": "Trip Inquiries",
+    "subtitle": "Trip planning submissions from the website",
+    "totalInquiries": "Total Inquiries",
+    "thisMonth": "This Month",
+    "avgTravelers": "Avg. Travelers",
+    "searchPlaceholder": "Search by name, email, phone, or destination...",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "destination": "Destination",
+    "dates": "Dates",
+    "travelers": "Travelers",
+    "style": "Trip Style",
+    "budget": "Budget",
+    "message": "Message",
+    "submitted": "Submitted",
+    "noInquiries": "No inquiries found",
+    "inquiryDetails": "Inquiry Details",
+    "contactInfo": "Contact Information",
+    "travelDetails": "Travel Details"
+  },
   "common": {
     "refresh": "Refresh",
     "save": "Save Changes",
