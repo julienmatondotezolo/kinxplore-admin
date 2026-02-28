@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Destination, CategoryAssignment, OpeningHours, DestinationImage, addDestinationImages, removeDestinationImage } from "@/lib/api";
 import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
-import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, GripVertical, Sparkles } from "lucide-react";
+import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, GripVertical, Sparkles, Globe, Instagram, Facebook } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -106,6 +106,12 @@ export function DestinationForm({
   const [categories, setCategories] = useState<CategoryAssignment[]>([]);
   const [selectedParent, setSelectedParent] = useState<string>("");
 
+  const [socialLinks, setSocialLinks] = useState({
+    instagram_url: "",
+    facebook_url: "",
+    website_url: "",
+  });
+
   const [highlights, setHighlights] = useState<string[]>([]);
   const [newHighlight, setNewHighlight] = useState("");
 
@@ -143,6 +149,13 @@ export function DestinationForm({
         });
       }
 
+      // Set social links
+      setSocialLinks({
+        instagram_url: destination.instagram_url || "",
+        facebook_url: destination.facebook_url || "",
+        website_url: destination.website_url || "",
+      });
+
       // Set highlights
       setHighlights(destination.highlights || []);
       setNewHighlight("");
@@ -166,6 +179,11 @@ export function DestinationForm({
       setImageFile(null);
       setAdditionalImages([]);
       setNewImageUrl("");
+      setSocialLinks({
+        instagram_url: "",
+        facebook_url: "",
+        website_url: "",
+      });
       setHighlights([]);
       setNewHighlight("");
       setOpeningHours({
@@ -268,6 +286,9 @@ export function DestinationForm({
       category_ids: categories,
       opening_hours: Object.keys(filteredOpeningHours).length > 0 ? filteredOpeningHours : undefined,
       highlights: highlights.length > 0 ? highlights : undefined,
+      instagram_url: socialLinks.instagram_url.trim() || undefined,
+      facebook_url: socialLinks.facebook_url.trim() || undefined,
+      website_url: socialLinks.website_url.trim() || undefined,
     });
   };
 
@@ -637,6 +658,64 @@ export function DestinationForm({
               </div>
               <p className="text-xs text-muted-foreground">
                 Add key highlights for this destination. Press Enter or click Add.
+              </p>
+            </div>
+
+            {/* Social Links */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                <Label>Social Links</Label>
+              </div>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="instagram_url" className="text-xs flex items-center gap-1.5">
+                    <Instagram className="h-3.5 w-3.5 text-pink-500" />
+                    Instagram
+                  </Label>
+                  <Input
+                    id="instagram_url"
+                    value={socialLinks.instagram_url}
+                    onChange={(e) =>
+                      setSocialLinks({ ...socialLinks, instagram_url: e.target.value })
+                    }
+                    placeholder="https://instagram.com/..."
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="facebook_url" className="text-xs flex items-center gap-1.5">
+                    <Facebook className="h-3.5 w-3.5 text-blue-600" />
+                    Facebook
+                  </Label>
+                  <Input
+                    id="facebook_url"
+                    value={socialLinks.facebook_url}
+                    onChange={(e) =>
+                      setSocialLinks({ ...socialLinks, facebook_url: e.target.value })
+                    }
+                    placeholder="https://facebook.com/..."
+                    className="text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="website_url" className="text-xs flex items-center gap-1.5">
+                    <Globe className="h-3.5 w-3.5 text-gray-500" />
+                    Website
+                  </Label>
+                  <Input
+                    id="website_url"
+                    value={socialLinks.website_url}
+                    onChange={(e) =>
+                      setSocialLinks({ ...socialLinks, website_url: e.target.value })
+                    }
+                    placeholder="https://..."
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Add social media and website links for this destination.
               </p>
             </div>
 

@@ -57,6 +57,9 @@ export interface Destination {
   status: 'active' | 'inactive';
   opening_hours?: OpeningHours | null;
   highlights?: string[];
+  instagram_url?: string;
+  facebook_url?: string;
+  website_url?: string;
   created_at: string;
   updated_at: string;
   categories: CategoryInfo[];
@@ -78,6 +81,9 @@ export interface CreateDestinationDto {
   category_ids?: CategoryAssignment[];
   opening_hours?: OpeningHours;
   highlights?: string[];
+  instagram_url?: string;
+  facebook_url?: string;
+  website_url?: string;
 }
 
 export interface UpdateDestinationDto {
@@ -90,6 +96,9 @@ export interface UpdateDestinationDto {
   category_ids?: CategoryAssignment[];
   opening_hours?: OpeningHours;
   highlights?: string[];
+  instagram_url?: string;
+  facebook_url?: string;
+  website_url?: string;
 }
 
 export interface ArchiveEntry {
