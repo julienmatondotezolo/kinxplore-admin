@@ -6,17 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/ui/ImageUpload";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Destination, CategoryAssignment, OpeningHours, DestinationImage, addDestinationImages, removeDestinationImage } from "@/lib/api";
 import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
-import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, GripVertical, Sparkles, Globe, Instagram, Facebook, CheckCircle2 } from "lucide-react";
+import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, Sparkles, Globe, Instagram, Facebook, CheckCircle2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -34,7 +34,7 @@ function SubcategorySelector({
 
   if (isLoading) {
     return (
-      <div className="mt-2 text-xs text-muted-foreground">Loading subcategories...</div>
+      <div className="mt-1 text-xs text-muted-foreground">Loading...</div>
     );
   }
 
@@ -46,7 +46,7 @@ function SubcategorySelector({
     <select
       value={subcategoryId || ""}
       onChange={(e) => onChange(e.target.value)}
-      className="mt-2 text-xs w-full rounded-lg border border-gray-300 bg-white text-gray-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+      className="mt-1 text-xs w-full rounded-md border border-gray-300 bg-white text-gray-900 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
     >
       <option value="">No subcategory</option>
       {subcategories
@@ -57,6 +57,77 @@ function SubcategorySelector({
           </option>
         ))}
     </select>
+  );
+}
+
+// Reusable tag input component
+function TagInput({
+  items,
+  onAdd,
+  onRemove,
+  placeholder,
+  tagClassName,
+}: {
+  items: string[];
+  onAdd: (value: string) => void;
+  onRemove: (index: number) => void;
+  placeholder: string;
+  tagClassName: string;
+}) {
+  const [value, setValue] = useState("");
+
+  return (
+    <div className="space-y-2">
+      {items.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {items.map((item, index) => (
+            <span
+              key={index}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${tagClassName}`}
+            >
+              {item}
+              <button
+                type="button"
+                onClick={() => onRemove(index)}
+                className="hover:opacity-70 ml-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="flex gap-2">
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && value.trim()) {
+              e.preventDefault();
+              onAdd(value.trim());
+              setValue("");
+            }
+          }}
+          placeholder={placeholder}
+          className="flex-1 text-sm h-8"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 px-2.5"
+          onClick={() => {
+            if (value.trim()) {
+              onAdd(value.trim());
+              setValue("");
+            }
+          }}
+          disabled={!value.trim()}
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -75,6 +146,8 @@ export function DestinationForm({
   destination,
   isLoading,
 }: DestinationFormProps) {
+  const [activeTab, setActiveTab] = useState("general");
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -113,13 +186,8 @@ export function DestinationForm({
   });
 
   const [highlights, setHighlights] = useState<string[]>([]);
-  const [newHighlight, setNewHighlight] = useState("");
-
   const [idealFor, setIdealFor] = useState<string[]>([]);
-  const [newIdealFor, setNewIdealFor] = useState("");
-
   const [whyChoose, setWhyChoose] = useState<string[]>([]);
-  const [newWhyChoose, setNewWhyChoose] = useState("");
 
   const { data: parentCategories } = useParentCategories();
 
@@ -133,134 +201,80 @@ export function DestinationForm({
         location: destination.location || "",
         ratings: destination.ratings || 0,
       });
-
-      // Reset image file state to null when editing existing destination
       setImageFile(null);
-
-      // Set additional images
       setAdditionalImages(destination.images?.sort((a, b) => a.sort_order - b.sort_order) || []);
-
-      // Set opening hours
       if (destination.opening_hours) {
         setOpeningHours(destination.opening_hours);
       } else {
-        setOpeningHours({
-          monday: "",
-          tuesday: "",
-          wednesday: "",
-          thursday: "",
-          friday: "",
-          saturday: "",
-          sunday: "",
-        });
+        setOpeningHours({ monday: "", tuesday: "", wednesday: "", thursday: "", friday: "", saturday: "", sunday: "" });
       }
-
-      // Set social links
       setSocialLinks({
         instagram_url: destination.instagram_url || "",
         facebook_url: destination.facebook_url || "",
         website_url: destination.website_url || "",
       });
-
-      // Set highlights
       setHighlights(destination.highlights || []);
-      setNewHighlight("");
-
-      // Set ideal_for and why_choose
       setIdealFor(destination.ideal_for || []);
-      setNewIdealFor("");
       setWhyChoose(destination.why_choose || []);
-      setNewWhyChoose("");
-
-      // Convert categories to CategoryAssignment format
       const cats: CategoryAssignment[] = destination.categories.map((cat) => ({
         parent_category_id: cat.parent.id,
         subcategory_id: cat.subcategory?.id,
       }));
       setCategories(cats);
     } else {
-      // Reset form
-      setFormData({
-        name: "",
-        description: "",
-        image: "",
-        price: 0,
-        location: "",
-        ratings: 0,
-      });
+      setFormData({ name: "", description: "", image: "", price: 0, location: "", ratings: 0 });
       setImageFile(null);
       setAdditionalImages([]);
       setNewImageUrl("");
-      setSocialLinks({
-        instagram_url: "",
-        facebook_url: "",
-        website_url: "",
-      });
+      setSocialLinks({ instagram_url: "", facebook_url: "", website_url: "" });
       setHighlights([]);
-      setNewHighlight("");
       setIdealFor([]);
-      setNewIdealFor("");
       setWhyChoose([]);
-      setNewWhyChoose("");
-      setOpeningHours({
-        monday: "",
-        tuesday: "",
-        wednesday: "",
-        thursday: "",
-        friday: "",
-        saturday: "",
-        sunday: "",
-      });
+      setOpeningHours({ monday: "", tuesday: "", wednesday: "", thursday: "", friday: "", saturday: "", sunday: "" });
       setCategories([]);
     }
+    setActiveTab("general");
   }, [destination, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate required fields
+
     if (!formData.name || !formData.name.trim()) {
       toast.error("Please enter a destination name.");
+      setActiveTab("general");
       return;
     }
-    
     if (!formData.description || !formData.description.trim()) {
       toast.error("Please enter a destination description.");
+      setActiveTab("general");
       return;
     }
-    
     if (!formData.location || !formData.location.trim()) {
       toast.error("Please enter a destination location.");
+      setActiveTab("general");
       return;
     }
-    
     if (formData.price === undefined || formData.price === null || formData.price < 0) {
       toast.error("Please enter a valid price (minimum 0).");
+      setActiveTab("general");
       return;
     }
-    
-    // Validate that at least one category is selected
     if (categories.length === 0) {
-      toast.error("Please add at least one category to the destination.");
+      toast.error("Please add at least one category.");
+      setActiveTab("settings");
       return;
     }
 
-    // Handle image upload based on type
     let imageUrl = formData.image;
-    
+
     if (imageFile instanceof File) {
-      // Upload file to Supabase Storage
       setIsUploadingImage(true);
       try {
         const formDataToUpload = new FormData();
         formDataToUpload.append('file', imageFile);
-        
         const { data } = await api.post('/admin/destinations/upload-image', formDataToUpload, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
-        
         imageUrl = data.url;
         toast.success("Image uploaded successfully!");
       } catch (error) {
@@ -272,7 +286,6 @@ export function DestinationForm({
         setIsUploadingImage(false);
       }
     } else if (typeof imageFile === 'string' && imageFile.trim()) {
-      // Upload from URL to Supabase Storage
       setIsUploadingImage(true);
       try {
         const { data } = await api.post('/admin/destinations/upload-image-url', { url: imageFile });
@@ -287,8 +300,7 @@ export function DestinationForm({
         setIsUploadingImage(false);
       }
     }
-    
-    // Filter out empty opening hours
+
     const filteredOpeningHours: OpeningHours = {};
     Object.entries(openingHours).forEach(([day, hours]) => {
       if (hours && hours.trim()) {
@@ -316,12 +328,7 @@ export function DestinationForm({
 
   const addCategory = () => {
     if (selectedParent) {
-      setCategories([
-        ...categories,
-        {
-          parent_category_id: selectedParent,
-        },
-      ]);
+      setCategories([...categories, { parent_category_id: selectedParent }]);
       setSelectedParent("");
     }
   };
@@ -367,583 +374,391 @@ export function DestinationForm({
     }
   };
 
-  const setAllDays24Hours = () => {
-    setOpeningHours({
-      monday: "00:00-23:59",
-      tuesday: "00:00-23:59",
-      wednesday: "00:00-23:59",
-      thursday: "00:00-23:59",
-      friday: "00:00-23:59",
-      saturday: "00:00-23:59",
-      sunday: "00:00-23:59",
-    });
-  };
-
-  const clearAllHours = () => {
-    setOpeningHours({
-      monday: "",
-      tuesday: "",
-      wednesday: "",
-      thursday: "",
-      friday: "",
-      saturday: "",
-      sunday: "",
-    });
-  };
+  const isBusy = isLoading || isUploadingImage;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
-        <DialogHeader>
-          <DialogTitle>
-            {destination ? "Edit Destination" : "Create New Destination"}
-          </DialogTitle>
-          <DialogDescription>
-            {destination
-              ? "Update the destination information below."
-              : "Fill in the details to create a new destination."}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-3xl h-[85vh] flex flex-col p-0 gap-0">
+        {/* Fixed Header */}
+        <div className="px-6 pt-6 pb-4 border-b shrink-0">
+          <DialogHeader>
+            <DialogTitle className="text-lg">
+              {destination ? "Edit Destination" : "Create New Destination"}
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              {destination
+                ? "Update the destination information below."
+                : "Fill in the details to create a new destination."}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid gap-4">
-            {/* Name */}
-            <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                required
-                placeholder="Enter destination name"
-              />
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
+            {/* Fixed Tab Bar */}
+            <div className="px-6 pt-3 shrink-0">
+              <TabsList className="w-full grid grid-cols-4">
+                <TabsTrigger value="general">General</TabsTrigger>
+                <TabsTrigger value="media">Media</TabsTrigger>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
             </div>
 
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Description <span className="text-red-500">*</span></Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                required
-                placeholder="Enter destination description"
-                rows={4}
-              />
-            </div>
+            {/* Scrollable Tab Content */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
 
-            {/* Image Upload */}
-            <ImageUpload
-              value={formData.image}
-              onChange={handleImageChange}
-              disabled={isLoading || isUploadingImage}
-            />
+              {/* TAB: General */}
+              <TabsContent value="general" className="mt-0 space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="name" className="text-sm">Name <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                      placeholder="Enter destination name"
+                    />
+                  </div>
 
-            {/* Additional Images (only when editing) */}
-            {destination && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                  <Label>Additional Images</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="description" className="text-sm">Description <span className="text-red-500">*</span></Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      required
+                      placeholder="Enter destination description"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="location" className="text-sm">Location <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      required
+                      placeholder="Enter location"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="price" className="text-sm">Price ($) <span className="text-red-500">*</span></Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="ratings" className="text-sm">Ratings (0-5)</Label>
+                      <Input
+                        id="ratings"
+                        type="number"
+                        min="0"
+                        max="5"
+                        step="0.1"
+                        value={formData.ratings}
+                        onChange={(e) => setFormData({ ...formData, ratings: parseFloat(e.target.value) || 0 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* TAB: Media */}
+              <TabsContent value="media" className="mt-0 space-y-5">
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Main Image</Label>
+                  <ImageUpload
+                    value={formData.image}
+                    onChange={handleImageChange}
+                    disabled={isBusy}
+                  />
                 </div>
 
-                {/* Existing images */}
-                {additionalImages.length > 0 && (
-                  <div className="grid grid-cols-3 gap-3">
-                    {additionalImages.map((img) => (
-                      <div key={img.id} className="relative group rounded-lg overflow-hidden border border-gray-200">
-                        <img
-                          src={img.url}
-                          alt={img.alt_text || "Additional image"}
-                          className="w-full h-24 object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveAdditionalImage(img.id)}
-                          disabled={removingImageId === img.id}
-                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                        >
-                          {removingImageId === img.id ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3 w-3" />
-                          )}
-                        </button>
+                {/* Additional Images (only when editing) */}
+                {destination && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                      <Label className="text-sm">Gallery Images</Label>
+                    </div>
+
+                    {additionalImages.length > 0 && (
+                      <div className="grid grid-cols-4 gap-2">
+                        {additionalImages.map((img) => (
+                          <div key={img.id} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square">
+                            <img
+                              src={img.url}
+                              alt={img.alt_text || "Gallery image"}
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveAdditionalImage(img.id)}
+                              disabled={removingImageId === img.id}
+                              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                            >
+                              {removingImageId === img.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-3 w-3" />
+                              )}
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+
+                    <div className="flex gap-2">
+                      <Input
+                        value={newImageUrl}
+                        onChange={(e) => setNewImageUrl(e.target.value)}
+                        placeholder="Paste image URL..."
+                        className="flex-1 text-sm h-8"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddAdditionalImage}
+                        disabled={!newImageUrl.trim() || isAddingImage}
+                        size="sm"
+                        className="h-8"
+                      >
+                        {isAddingImage ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Plus className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 )}
 
-                {/* Add new image */}
-                <div className="flex gap-2">
-                  <Input
-                    value={newImageUrl}
-                    onChange={(e) => setNewImageUrl(e.target.value)}
-                    placeholder="Paste image URL..."
-                    className="flex-1 text-sm"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddAdditionalImage}
-                    disabled={!newImageUrl.trim() || isAddingImage}
-                    size="sm"
-                  >
-                    {isAddingImage ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <>
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add
-                      </>
-                    )}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Add additional gallery images for this destination. These appear in the detail page gallery.
-                </p>
-              </div>
-            )}
-
-            {/* Location */}
-            <div className="space-y-2">
-              <Label htmlFor="location">Location <span className="text-red-500">*</span></Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
-                required
-                placeholder="Enter location"
-              />
-            </div>
-
-            {/* Price and Ratings */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price">Price ($) <span className="text-red-500">*</span></Label>
-                <Input
-                  id="price"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      price: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ratings">Ratings (0-5)</Label>
-                <Input
-                  id="ratings"
-                  type="number"
-                  min="0"
-                  max="5"
-                  step="0.1"
-                  value={formData.ratings}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      ratings: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Opening Hours */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <Label>Opening Hours</Label>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={setAllDays24Hours}
-                    className="text-xs"
-                  >
-                    24/7
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={clearAllHours}
-                    className="text-xs"
-                  >
-                    Clear All
-                  </Button>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Enter opening hours in format: "9:00-18:00" or "9:00-12:00, 14:00-18:00" (leave empty for closed)
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {(["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const).map((day) => (
-                  <div key={day} className="space-y-1">
-                    <Label htmlFor={day} className="text-xs capitalize">
-                      {day}
-                    </Label>
-                    <Input
-                      id={day}
-                      value={openingHours[day] || ""}
-                      onChange={(e) =>
-                        setOpeningHours({ ...openingHours, [day]: e.target.value })
-                      }
-                      placeholder="9:00-18:00"
-                      className="text-sm"
-                    />
+                {/* Social Links */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-sm">Social Links</Label>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Highlights */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-muted-foreground" />
-                <Label>Highlights</Label>
-              </div>
-
-              {/* Existing highlights */}
-              {highlights.length > 0 && (
-                <div className="space-y-2">
-                  {highlights.map((highlight, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 p-2 rounded-lg border bg-gray-50"
-                    >
-                      <span className="flex-1 text-sm">{highlight}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setHighlights(highlights.filter((_, i) => i !== index))
-                        }
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="flex items-center gap-2">
+                      <Instagram className="h-4 w-4 text-pink-500 shrink-0" />
+                      <Input
+                        value={socialLinks.instagram_url}
+                        onChange={(e) => setSocialLinks({ ...socialLinks, instagram_url: e.target.value })}
+                        placeholder="https://instagram.com/..."
+                        className="text-sm h-8"
+                      />
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Add new highlight */}
-              <div className="flex gap-2">
-                <Input
-                  value={newHighlight}
-                  onChange={(e) => setNewHighlight(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && newHighlight.trim()) {
-                      e.preventDefault();
-                      setHighlights([...highlights, newHighlight.trim()]);
-                      setNewHighlight("");
-                    }
-                  }}
-                  placeholder="Add a highlight..."
-                  className="flex-1 text-sm"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    if (newHighlight.trim()) {
-                      setHighlights([...highlights, newHighlight.trim()]);
-                      setNewHighlight("");
-                    }
-                  }}
-                  disabled={!newHighlight.trim()}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Add key highlights for this destination. Press Enter or click Add.
-              </p>
-            </div>
-
-            {/* Ideal For */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-muted-foreground" />
-                <Label>Ideal For</Label>
-              </div>
-
-              {idealFor.length > 0 && (
-                <div className="space-y-2">
-                  {idealFor.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 p-2 rounded-lg border bg-blue-50"
-                    >
-                      <span className="flex-1 text-sm">{item}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setIdealFor(idealFor.filter((_, i) => i !== index))
-                        }
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    <div className="flex items-center gap-2">
+                      <Facebook className="h-4 w-4 text-blue-600 shrink-0" />
+                      <Input
+                        value={socialLinks.facebook_url}
+                        onChange={(e) => setSocialLinks({ ...socialLinks, facebook_url: e.target.value })}
+                        placeholder="https://facebook.com/..."
+                        className="text-sm h-8"
+                      />
                     </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex gap-2">
-                <Input
-                  value={newIdealFor}
-                  onChange={(e) => setNewIdealFor(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && newIdealFor.trim()) {
-                      e.preventDefault();
-                      setIdealFor([...idealFor, newIdealFor.trim()]);
-                      setNewIdealFor("");
-                    }
-                  }}
-                  placeholder="e.g. Couples, Nature lovers..."
-                  className="flex-1 text-sm"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    if (newIdealFor.trim()) {
-                      setIdealFor([...idealFor, newIdealFor.trim()]);
-                      setNewIdealFor("");
-                    }
-                  }}
-                  disabled={!newIdealFor.trim()}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Who is this destination ideal for? Press Enter or click Add.
-              </p>
-            </div>
-
-            {/* Why Choose */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-                <Label>Why Choose</Label>
-              </div>
-
-              {whyChoose.length > 0 && (
-                <div className="space-y-2">
-                  {whyChoose.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 p-2 rounded-lg border bg-green-50"
-                    >
-                      <span className="flex-1 text-sm">{item}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setWhyChoose(whyChoose.filter((_, i) => i !== index))
-                        }
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-gray-500 shrink-0" />
+                      <Input
+                        value={socialLinks.website_url}
+                        onChange={(e) => setSocialLinks({ ...socialLinks, website_url: e.target.value })}
+                        placeholder="https://..."
+                        className="text-sm h-8"
+                      />
                     </div>
-                  ))}
+                  </div>
                 </div>
-              )}
+              </TabsContent>
 
-              <div className="flex gap-2">
-                <Input
-                  value={newWhyChoose}
-                  onChange={(e) => setNewWhyChoose(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && newWhyChoose.trim()) {
-                      e.preventDefault();
-                      setWhyChoose([...whyChoose, newWhyChoose.trim()]);
-                      setNewWhyChoose("");
-                    }
-                  }}
-                  placeholder="e.g. Close to the city, Professional guides..."
-                  className="flex-1 text-sm"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    if (newWhyChoose.trim()) {
-                      setWhyChoose([...whyChoose, newWhyChoose.trim()]);
-                      setNewWhyChoose("");
-                    }
-                  }}
-                  disabled={!newWhyChoose.trim()}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Why should someone choose this destination? Press Enter or click Add.
-              </p>
-            </div>
-
-            {/* Social Links */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <Label>Social Links</Label>
-              </div>
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label htmlFor="instagram_url" className="text-xs flex items-center gap-1.5">
-                    <Instagram className="h-3.5 w-3.5 text-pink-500" />
-                    Instagram
-                  </Label>
-                  <Input
-                    id="instagram_url"
-                    value={socialLinks.instagram_url}
-                    onChange={(e) =>
-                      setSocialLinks({ ...socialLinks, instagram_url: e.target.value })
-                    }
-                    placeholder="https://instagram.com/..."
-                    className="text-sm"
+              {/* TAB: Details */}
+              <TabsContent value="details" className="mt-0 space-y-5">
+                {/* Highlights */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-sm">Highlights</Label>
+                  </div>
+                  <TagInput
+                    items={highlights}
+                    onAdd={(v) => setHighlights([...highlights, v])}
+                    onRemove={(i) => setHighlights(highlights.filter((_, idx) => idx !== i))}
+                    placeholder="Add a highlight..."
+                    tagClassName="bg-gray-100 text-gray-700"
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="facebook_url" className="text-xs flex items-center gap-1.5">
-                    <Facebook className="h-3.5 w-3.5 text-blue-600" />
-                    Facebook
-                  </Label>
-                  <Input
-                    id="facebook_url"
-                    value={socialLinks.facebook_url}
-                    onChange={(e) =>
-                      setSocialLinks({ ...socialLinks, facebook_url: e.target.value })
-                    }
-                    placeholder="https://facebook.com/..."
-                    className="text-sm"
+
+                {/* Ideal For */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-blue-500" />
+                    <Label className="text-sm">Ideal For</Label>
+                  </div>
+                  <TagInput
+                    items={idealFor}
+                    onAdd={(v) => setIdealFor([...idealFor, v])}
+                    onRemove={(i) => setIdealFor(idealFor.filter((_, idx) => idx !== i))}
+                    placeholder="e.g. Couples, Nature lovers..."
+                    tagClassName="bg-blue-50 text-blue-700"
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="website_url" className="text-xs flex items-center gap-1.5">
-                    <Globe className="h-3.5 w-3.5 text-gray-500" />
-                    Website
-                  </Label>
-                  <Input
-                    id="website_url"
-                    value={socialLinks.website_url}
-                    onChange={(e) =>
-                      setSocialLinks({ ...socialLinks, website_url: e.target.value })
-                    }
-                    placeholder="https://..."
-                    className="text-sm"
+
+                {/* Why Choose */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <Label className="text-sm">Why Choose</Label>
+                  </div>
+                  <TagInput
+                    items={whyChoose}
+                    onAdd={(v) => setWhyChoose([...whyChoose, v])}
+                    onRemove={(i) => setWhyChoose(whyChoose.filter((_, idx) => idx !== i))}
+                    placeholder="e.g. Close to the city, Professional guides..."
+                    tagClassName="bg-green-50 text-green-700"
                   />
                 </div>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Add social media and website links for this destination.
-              </p>
-            </div>
 
-            {/* Categories */}
-            <div className="space-y-3">
-              <Label>
-                Categories <span className="text-red-500">*</span>
-              </Label>
-              {categories.length === 0 && (
-                <p className="text-xs text-red-500">
-                  At least one category is required
-                </p>
-              )}
-
-              {/* Existing categories */}
-              <div className="space-y-2">
-                {categories.map((cat, index) => {
-                  const parent = parentCategories?.find(
-                    (p) => p.id === cat.parent_category_id
-                  );
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 p-3 rounded-lg border bg-gray-100"
-                    >
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{parent?.name}</p>
-                        <SubcategorySelector
-                          parentCategoryId={cat.parent_category_id}
-                          subcategoryId={cat.subcategory_id}
-                          onChange={(value) => updateCategorySubcategory(index, value)}
-                        />
-                      </div>
+                {/* Opening Hours */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <Label className="text-sm">Opening Hours</Label>
+                    </div>
+                    <div className="flex gap-1.5">
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => removeCategory(index)}
+                        className="h-7 text-xs px-2"
+                        onClick={() => setOpeningHours({
+                          monday: "00:00-23:59", tuesday: "00:00-23:59", wednesday: "00:00-23:59",
+                          thursday: "00:00-23:59", friday: "00:00-23:59", saturday: "00:00-23:59", sunday: "00:00-23:59",
+                        })}
                       >
-                        <X className="h-4 w-4" />
+                        24/7
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs px-2"
+                        onClick={() => setOpeningHours({
+                          monday: "", tuesday: "", wednesday: "", thursday: "", friday: "", saturday: "", sunday: "",
+                        })}
+                      >
+                        Clear
                       </Button>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                    {(["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const).map((day) => (
+                      <div key={day} className="flex items-center gap-2">
+                        <span className="text-xs capitalize text-muted-foreground w-12 shrink-0">{day.slice(0, 3)}</span>
+                        <Input
+                          value={openingHours[day] || ""}
+                          onChange={(e) => setOpeningHours({ ...openingHours, [day]: e.target.value })}
+                          placeholder="9:00-18:00"
+                          className="text-sm h-8"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
 
-              {/* Add new category */}
-              <div className="flex gap-2">
-                <select
-                  value={selectedParent}
-                  onChange={(e) => setSelectedParent(e.target.value)}
-                  className="flex-1 h-11 rounded-lg border border-gray-300 bg-white text-gray-900 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                  <option value="">Select a category...</option>
-                  {parentCategories?.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addCategory}
-                  disabled={!selectedParent}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Add
-                </Button>
-              </div>
+              {/* TAB: Settings */}
+              <TabsContent value="settings" className="mt-0 space-y-4">
+                {/* Categories */}
+                <div className="space-y-3">
+                  <Label className="text-sm">
+                    Categories <span className="text-red-500">*</span>
+                  </Label>
+                  {categories.length === 0 && (
+                    <p className="text-xs text-red-500">At least one category is required</p>
+                  )}
+
+                  <div className="space-y-2">
+                    {categories.map((cat, index) => {
+                      const parent = parentCategories?.find((p) => p.id === cat.parent_category_id);
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 p-2.5 rounded-lg border bg-gray-50"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{parent?.name}</p>
+                            <SubcategorySelector
+                              parentCategoryId={cat.parent_category_id}
+                              subcategoryId={cat.subcategory_id}
+                              onChange={(value) => updateCategorySubcategory(index, value)}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 shrink-0"
+                            onClick={() => removeCategory(index)}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <select
+                      value={selectedParent}
+                      onChange={(e) => setSelectedParent(e.target.value)}
+                      className="flex-1 h-9 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    >
+                      <option value="">Select a category...</option>
+                      {parentCategories?.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-9"
+                      onClick={addCategory}
+                      disabled={!selectedParent}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
             </div>
-          </div>
+          </Tabs>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isUploadingImage}>
+          {/* Fixed Footer */}
+          <div className="px-6 py-4 border-t shrink-0 flex justify-end gap-3 bg-white">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isBusy}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading || isUploadingImage}>
-              {(isLoading || isUploadingImage) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isUploadingImage ? "Uploading Image..." : (destination ? "Update" : "Create")}
+            <Button type="submit" disabled={isBusy}>
+              {isBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isUploadingImage ? "Uploading..." : (destination ? "Update" : "Create")}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
