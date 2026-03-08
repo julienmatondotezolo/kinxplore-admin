@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Destination, CategoryAssignment, OpeningHours, DestinationImage, addDestinationImages, removeDestinationImage } from "@/lib/api";
 import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
-import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, GripVertical, Sparkles, Globe, Instagram, Facebook } from "lucide-react";
+import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, GripVertical, Sparkles, Globe, Instagram, Facebook, CheckCircle2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -115,6 +115,12 @@ export function DestinationForm({
   const [highlights, setHighlights] = useState<string[]>([]);
   const [newHighlight, setNewHighlight] = useState("");
 
+  const [idealFor, setIdealFor] = useState<string[]>([]);
+  const [newIdealFor, setNewIdealFor] = useState("");
+
+  const [whyChoose, setWhyChoose] = useState<string[]>([]);
+  const [newWhyChoose, setNewWhyChoose] = useState("");
+
   const { data: parentCategories } = useParentCategories();
 
   useEffect(() => {
@@ -160,6 +166,12 @@ export function DestinationForm({
       setHighlights(destination.highlights || []);
       setNewHighlight("");
 
+      // Set ideal_for and why_choose
+      setIdealFor(destination.ideal_for || []);
+      setNewIdealFor("");
+      setWhyChoose(destination.why_choose || []);
+      setNewWhyChoose("");
+
       // Convert categories to CategoryAssignment format
       const cats: CategoryAssignment[] = destination.categories.map((cat) => ({
         parent_category_id: cat.parent.id,
@@ -186,6 +198,10 @@ export function DestinationForm({
       });
       setHighlights([]);
       setNewHighlight("");
+      setIdealFor([]);
+      setNewIdealFor("");
+      setWhyChoose([]);
+      setNewWhyChoose("");
       setOpeningHours({
         monday: "",
         tuesday: "",
@@ -286,6 +302,8 @@ export function DestinationForm({
       category_ids: categories,
       opening_hours: Object.keys(filteredOpeningHours).length > 0 ? filteredOpeningHours : undefined,
       highlights: highlights.length > 0 ? highlights : undefined,
+      ideal_for: idealFor.length > 0 ? idealFor : undefined,
+      why_choose: whyChoose.length > 0 ? whyChoose : undefined,
       instagram_url: socialLinks.instagram_url.trim() || undefined,
       facebook_url: socialLinks.facebook_url.trim() || undefined,
       website_url: socialLinks.website_url.trim() || undefined,
@@ -658,6 +676,134 @@ export function DestinationForm({
               </div>
               <p className="text-xs text-muted-foreground">
                 Add key highlights for this destination. Press Enter or click Add.
+              </p>
+            </div>
+
+            {/* Ideal For */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-muted-foreground" />
+                <Label>Ideal For</Label>
+              </div>
+
+              {idealFor.length > 0 && (
+                <div className="space-y-2">
+                  {idealFor.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 p-2 rounded-lg border bg-blue-50"
+                    >
+                      <span className="flex-1 text-sm">{item}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setIdealFor(idealFor.filter((_, i) => i !== index))
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Input
+                  value={newIdealFor}
+                  onChange={(e) => setNewIdealFor(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newIdealFor.trim()) {
+                      e.preventDefault();
+                      setIdealFor([...idealFor, newIdealFor.trim()]);
+                      setNewIdealFor("");
+                    }
+                  }}
+                  placeholder="e.g. Couples, Nature lovers..."
+                  className="flex-1 text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    if (newIdealFor.trim()) {
+                      setIdealFor([...idealFor, newIdealFor.trim()]);
+                      setNewIdealFor("");
+                    }
+                  }}
+                  disabled={!newIdealFor.trim()}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Who is this destination ideal for? Press Enter or click Add.
+              </p>
+            </div>
+
+            {/* Why Choose */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                <Label>Why Choose</Label>
+              </div>
+
+              {whyChoose.length > 0 && (
+                <div className="space-y-2">
+                  {whyChoose.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 p-2 rounded-lg border bg-green-50"
+                    >
+                      <span className="flex-1 text-sm">{item}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setWhyChoose(whyChoose.filter((_, i) => i !== index))
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Input
+                  value={newWhyChoose}
+                  onChange={(e) => setNewWhyChoose(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newWhyChoose.trim()) {
+                      e.preventDefault();
+                      setWhyChoose([...whyChoose, newWhyChoose.trim()]);
+                      setNewWhyChoose("");
+                    }
+                  }}
+                  placeholder="e.g. Close to the city, Professional guides..."
+                  className="flex-1 text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    if (newWhyChoose.trim()) {
+                      setWhyChoose([...whyChoose, newWhyChoose.trim()]);
+                      setNewWhyChoose("");
+                    }
+                  }}
+                  disabled={!newWhyChoose.trim()}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Why should someone choose this destination? Press Enter or click Add.
               </p>
             </div>
 

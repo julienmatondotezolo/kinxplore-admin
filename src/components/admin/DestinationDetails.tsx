@@ -214,6 +214,41 @@ export function DestinationDetails({
             </div>
           )}
 
+          {/* Ideal For */}
+          {destination.ideal_for && destination.ideal_for.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Star className="h-4 w-4" />
+                Ideal For
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {destination.ideal_for.map((item, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-sm px-3 py-1 bg-blue-50 text-blue-700">
+                    {item}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Why Choose */}
+          {destination.why_choose && destination.why_choose.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <CheckCircle2 className="h-4 w-4" />
+                Why Choose
+              </div>
+              <div className="space-y-1">
+                {destination.why_choose.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-green-50">
+                    <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Metadata */}
           <div className="pt-4 border-t">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-3">
