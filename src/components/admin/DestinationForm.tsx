@@ -19,16 +19,19 @@ import { useParentCategories, useSubcategories } from "@/hooks/useCategories";
 import { Loader2, Plus, X, Clock, Trash2, Image as ImageIcon, Sparkles, Globe, Instagram, Facebook, CheckCircle2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 // Subcategory selector component that loads subcategories for a specific parent
 function SubcategorySelector({
   parentCategoryId,
   subcategoryId,
   onChange,
+  noSubcategoryLabel,
 }: {
   parentCategoryId: string;
   subcategoryId?: string;
   onChange: (value: string) => void;
+  noSubcategoryLabel: string;
 }) {
   const { data: subcategories, isLoading } = useSubcategories(parentCategoryId);
 
@@ -48,7 +51,7 @@ function SubcategorySelector({
       onChange={(e) => onChange(e.target.value)}
       className="mt-1 text-xs w-full rounded-md border border-gray-300 bg-white text-gray-900 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
     >
-      <option value="">No subcategory</option>
+      <option value="">{noSubcategoryLabel}</option>
       {subcategories
         .filter((s) => s.parent_category_id === parentCategoryId)
         .map((sub) => (
@@ -146,6 +149,9 @@ export function DestinationForm({
   destination,
   isLoading,
 }: DestinationFormProps) {
+  const t = useTranslations("destinations");
+  const tc = useTranslations("common");
+
   const [activeTab, setActiveTab] = useState("general");
 
   const [formData, setFormData] = useState({
@@ -240,27 +246,27 @@ export function DestinationForm({
     e.preventDefault();
 
     if (!formData.name || !formData.name.trim()) {
-      toast.error("Please enter a destination name.");
+      toast.error(t("validation.nameRequired"));
       setActiveTab("general");
       return;
     }
     if (!formData.description || !formData.description.trim()) {
-      toast.error("Please enter a destination description.");
+      toast.error(t("validation.descriptionRequired"));
       setActiveTab("general");
       return;
     }
     if (!formData.location || !formData.location.trim()) {
-      toast.error("Please enter a destination location.");
+      toast.error(t("validation.locationRequired"));
       setActiveTab("general");
       return;
     }
     if (formData.price === undefined || formData.price === null || formData.price < 0) {
-      toast.error("Please enter a valid price (minimum 0).");
+      toast.error(t("validation.priceRequired"));
       setActiveTab("general");
       return;
     }
     if (categories.length === 0) {
-      toast.error("Please add at least one category.");
+      toast.error(t("validation.categoryRequired"));
       setActiveTab("settings");
       return;
     }
@@ -276,10 +282,10 @@ export function DestinationForm({
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         imageUrl = data.url;
-        toast.success("Image uploaded successfully!");
+        toast.success(t("imageSuccess"));
       } catch (error) {
         console.error("Failed to upload image:", error);
-        toast.error("Failed to upload image. Please try again.");
+        toast.error(t("imageFailed"));
         setIsUploadingImage(false);
         return;
       } finally {
@@ -290,10 +296,10 @@ export function DestinationForm({
       try {
         const { data } = await api.post('/admin/destinations/upload-image-url', { url: imageFile });
         imageUrl = data.url;
-        toast.success("Image uploaded from URL successfully!");
+        toast.success(t("imageUrlSuccess"));
       } catch (error) {
         console.error("Failed to upload image from URL:", error);
-        toast.error("Failed to upload image from URL. Please try again.");
+        toast.error(t("imageUrlFailed"));
         setIsUploadingImage(false);
         return;
       } finally {
@@ -350,10 +356,10 @@ export function DestinationForm({
       const result = await addDestinationImages(destination.id, [{ url: newImageUrl.trim() }]);
       setAdditionalImages((prev) => [...prev, ...result]);
       setNewImageUrl("");
-      toast.success("Image added successfully!");
+      toast.success(t("imageAdded"));
     } catch (error) {
       console.error("Failed to add image:", error);
-      toast.error("Failed to add image.");
+      toast.error(t("imageAddFailed"));
     } finally {
       setIsAddingImage(false);
     }
@@ -365,10 +371,10 @@ export function DestinationForm({
     try {
       await removeDestinationImage(destination.id, imageId);
       setAdditionalImages((prev) => prev.filter((img) => img.id !== imageId));
-      toast.success("Image removed.");
+      toast.success(t("imageRemoved"));
     } catch (error) {
       console.error("Failed to remove image:", error);
-      toast.error("Failed to remove image.");
+      toast.error(t("imageRemoveFailed"));
     } finally {
       setRemovingImageId(null);
     }
@@ -383,12 +389,10 @@ export function DestinationForm({
         <div className="px-6 pt-6 pb-4 border-b shrink-0">
           <DialogHeader>
             <DialogTitle className="text-lg">
-              {destination ? "Edit Destination" : "Create New Destination"}
+              {destination ? t("editDestination") : t("createDestination")}
             </DialogTitle>
             <DialogDescription className="text-sm">
-              {destination
-                ? "Update the destination information below."
-                : "Fill in the details to create a new destination."}
+              {destination ? t("editDescription") : t("createDescription")}
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -398,10 +402,10 @@ export function DestinationForm({
             {/* Fixed Tab Bar */}
             <div className="px-6 pt-3 shrink-0">
               <TabsList className="w-full grid grid-cols-4">
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="media">Media</TabsTrigger>
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
+                <TabsTrigger value="general">{t("tabs.general")}</TabsTrigger>
+                <TabsTrigger value="media">{t("tabs.media")}</TabsTrigger>
+                <TabsTrigger value="details">{t("tabs.details")}</TabsTrigger>
+                <TabsTrigger value="settings">{t("tabs.settings")}</TabsTrigger>
               </TabsList>
             </div>
 
@@ -412,42 +416,42 @@ export function DestinationForm({
               <TabsContent value="general" className="mt-0 space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="name" className="text-sm">Name <span className="text-red-500">*</span></Label>
+                    <Label htmlFor="name" className="text-sm">{t("name")} <span className="text-red-500">*</span></Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
-                      placeholder="Enter destination name"
+                      placeholder={t("namePlaceholder")}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="description" className="text-sm">Description <span className="text-red-500">*</span></Label>
+                    <Label htmlFor="description" className="text-sm">{t("description")} <span className="text-red-500">*</span></Label>
                     <Textarea
                       id="description"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       required
-                      placeholder="Enter destination description"
+                      placeholder={t("descriptionPlaceholder")}
                       rows={3}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="location" className="text-sm">Location <span className="text-red-500">*</span></Label>
+                    <Label htmlFor="location" className="text-sm">{t("location")} <span className="text-red-500">*</span></Label>
                     <Input
                       id="location"
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       required
-                      placeholder="Enter location"
+                      placeholder={t("locationPlaceholder")}
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <Label htmlFor="price" className="text-sm">Price ($) <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="price" className="text-sm">{t("price")} <span className="text-red-500">*</span></Label>
                       <Input
                         id="price"
                         type="number"
@@ -459,7 +463,7 @@ export function DestinationForm({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="ratings" className="text-sm">Ratings (0-5)</Label>
+                      <Label htmlFor="ratings" className="text-sm">{t("ratings")}</Label>
                       <Input
                         id="ratings"
                         type="number"
@@ -477,7 +481,7 @@ export function DestinationForm({
               {/* TAB: Media */}
               <TabsContent value="media" className="mt-0 space-y-5">
                 <div className="space-y-1.5">
-                  <Label className="text-sm">Main Image</Label>
+                  <Label className="text-sm">{t("mainImage")}</Label>
                   <ImageUpload
                     value={formData.image}
                     onChange={handleImageChange}
@@ -490,7 +494,7 @@ export function DestinationForm({
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                      <Label className="text-sm">Gallery Images</Label>
+                      <Label className="text-sm">{t("galleryImages")}</Label>
                     </div>
 
                     {additionalImages.length > 0 && (
@@ -523,7 +527,7 @@ export function DestinationForm({
                       <Input
                         value={newImageUrl}
                         onChange={(e) => setNewImageUrl(e.target.value)}
-                        placeholder="Paste image URL..."
+                        placeholder={t("pasteImageUrl")}
                         className="flex-1 text-sm h-8"
                       />
                       <Button
@@ -548,7 +552,7 @@ export function DestinationForm({
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-muted-foreground" />
-                    <Label className="text-sm">Social Links</Label>
+                    <Label className="text-sm">{t("socialLinks")}</Label>
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="flex items-center gap-2">
@@ -588,13 +592,13 @@ export function DestinationForm({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-muted-foreground" />
-                    <Label className="text-sm">Highlights</Label>
+                    <Label className="text-sm">{t("highlights")}</Label>
                   </div>
                   <TagInput
                     items={highlights}
                     onAdd={(v) => setHighlights([...highlights, v])}
                     onRemove={(i) => setHighlights(highlights.filter((_, idx) => idx !== i))}
-                    placeholder="Add a highlight..."
+                    placeholder={t("highlightsPlaceholder")}
                     tagClassName="bg-gray-100 text-gray-700"
                   />
                 </div>
@@ -603,13 +607,13 @@ export function DestinationForm({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-blue-500" />
-                    <Label className="text-sm">Ideal For</Label>
+                    <Label className="text-sm">{t("idealFor")}</Label>
                   </div>
                   <TagInput
                     items={idealFor}
                     onAdd={(v) => setIdealFor([...idealFor, v])}
                     onRemove={(i) => setIdealFor(idealFor.filter((_, idx) => idx !== i))}
-                    placeholder="e.g. Couples, Nature lovers..."
+                    placeholder={t("idealForPlaceholder")}
                     tagClassName="bg-blue-50 text-blue-700"
                   />
                 </div>
@@ -618,13 +622,13 @@ export function DestinationForm({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <Label className="text-sm">Why Choose</Label>
+                    <Label className="text-sm">{t("whyChoose")}</Label>
                   </div>
                   <TagInput
                     items={whyChoose}
                     onAdd={(v) => setWhyChoose([...whyChoose, v])}
                     onRemove={(i) => setWhyChoose(whyChoose.filter((_, idx) => idx !== i))}
-                    placeholder="e.g. Close to the city, Professional guides..."
+                    placeholder={t("whyChoosePlaceholder")}
                     tagClassName="bg-green-50 text-green-700"
                   />
                 </div>
@@ -634,7 +638,7 @@ export function DestinationForm({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <Label className="text-sm">Opening Hours</Label>
+                      <Label className="text-sm">{t("openingHours")}</Label>
                     </div>
                     <div className="flex gap-1.5">
                       <Button
@@ -683,10 +687,10 @@ export function DestinationForm({
                 {/* Categories */}
                 <div className="space-y-3">
                   <Label className="text-sm">
-                    Categories <span className="text-red-500">*</span>
+                    {t("categories")} <span className="text-red-500">*</span>
                   </Label>
                   {categories.length === 0 && (
-                    <p className="text-xs text-red-500">At least one category is required</p>
+                    <p className="text-xs text-red-500">{t("categoriesRequired")}</p>
                   )}
 
                   <div className="space-y-2">
@@ -703,6 +707,7 @@ export function DestinationForm({
                               parentCategoryId={cat.parent_category_id}
                               subcategoryId={cat.subcategory_id}
                               onChange={(value) => updateCategorySubcategory(index, value)}
+                              noSubcategoryLabel={t("noSubcategory")}
                             />
                           </div>
                           <Button
@@ -725,7 +730,7 @@ export function DestinationForm({
                       onChange={(e) => setSelectedParent(e.target.value)}
                       className="flex-1 h-9 rounded-md border border-gray-300 bg-white text-gray-900 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     >
-                      <option value="">Select a category...</option>
+                      <option value="">{t("selectCategory")}</option>
                       {parentCategories?.map((cat) => (
                         <option key={cat.id} value={cat.id}>
                           {cat.name}
@@ -741,7 +746,7 @@ export function DestinationForm({
                       disabled={!selectedParent}
                     >
                       <Plus className="h-3.5 w-3.5 mr-1" />
-                      Add
+                      {t("add")}
                     </Button>
                   </div>
                 </div>
@@ -752,11 +757,11 @@ export function DestinationForm({
           {/* Fixed Footer */}
           <div className="px-6 py-4 border-t shrink-0 flex justify-end gap-3 bg-white">
             <Button type="button" variant="outline" onClick={onClose} disabled={isBusy}>
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button type="submit" disabled={isBusy}>
               {isBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isUploadingImage ? "Uploading..." : (destination ? "Update" : "Create")}
+              {isUploadingImage ? t("uploading") : (destination ? t("update") : t("create"))}
             </Button>
           </div>
         </form>
