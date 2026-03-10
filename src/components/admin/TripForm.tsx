@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, Plus, X, Upload, Search, MapPin, Trash2 } from 'lucide-react';
+import { Loader2, Plus, X, Upload, Search, MapPin, Trash2, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface TripFormProps {
   open: boolean;
@@ -42,6 +42,11 @@ export function TripForm({ open, onClose, onSubmit, trip, isLoading }: TripFormP
     destination_ids: [] as string[],
   });
 
+  const [idealFor, setIdealFor] = useState<string[]>([]);
+  const [whyChoose, setWhyChoose] = useState<string[]>([]);
+  const [newIdealFor, setNewIdealFor] = useState('');
+  const [newWhyChoose, setNewWhyChoose] = useState('');
+
   const [newIncludedItem, setNewIncludedItem] = useState('');
   const [newProgramTime, setNewProgramTime] = useState('');
   const [newProgramDesc, setNewProgramDesc] = useState('');
@@ -70,6 +75,8 @@ export function TripForm({ open, onClose, onSubmit, trip, isLoading }: TripFormP
         destination_ids: trip.destinations?.map(d => d.id) || [],
       });
       setAdditionalImages(trip.images?.sort((a, b) => a.sort_order - b.sort_order) || []);
+      setIdealFor(trip.ideal_for || []);
+      setWhyChoose(trip.why_choose || []);
     } else {
       setFormData({
         name: '',
@@ -87,6 +94,8 @@ export function TripForm({ open, onClose, onSubmit, trip, isLoading }: TripFormP
       });
       setAdditionalImages([]);
       setNewImageUrl('');
+      setIdealFor([]);
+      setWhyChoose([]);
     }
     setActiveTab('form');
     setDestSearch('');
@@ -260,7 +269,11 @@ export function TripForm({ open, onClose, onSubmit, trip, isLoading }: TripFormP
       toast.error('Please enter an international price');
       return;
     }
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      ideal_for: idealFor.length > 0 ? idealFor : undefined,
+      why_choose: whyChoose.length > 0 ? whyChoose : undefined,
+    });
   };
 
   const activeDestinations = (destinations || []).filter(d => d.status === 'active');
@@ -542,6 +555,96 @@ export function TripForm({ open, onClose, onSubmit, trip, isLoading }: TripFormP
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addProgramItem())}
                 />
                 <Button onClick={addProgramItem} size="sm" variant="outline" className="rounded-lg">
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Ideal For */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-blue-500" />
+                Idéal Pour
+              </label>
+              {idealFor.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {idealFor.map((item, index) => (
+                    <span key={index} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                      {item}
+                      <button type="button" onClick={() => setIdealFor(idealFor.filter((_, i) => i !== index))} className="hover:opacity-70 ml-0.5">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newIdealFor}
+                  onChange={e => setNewIdealFor(e.target.value)}
+                  placeholder="ex. Couples, Amoureux de la nature..."
+                  className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && newIdealFor.trim()) {
+                      e.preventDefault();
+                      setIdealFor([...idealFor, newIdealFor.trim()]);
+                      setNewIdealFor('');
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => { if (newIdealFor.trim()) { setIdealFor([...idealFor, newIdealFor.trim()]); setNewIdealFor(''); } }}
+                  disabled={!newIdealFor.trim()}
+                  size="sm"
+                  variant="outline"
+                  className="rounded-lg"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Why Choose */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                Pourquoi Choisir
+              </label>
+              {whyChoose.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {whyChoose.map((item, index) => (
+                    <span key={index} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                      {item}
+                      <button type="button" onClick={() => setWhyChoose(whyChoose.filter((_, i) => i !== index))} className="hover:opacity-70 ml-0.5">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newWhyChoose}
+                  onChange={e => setNewWhyChoose(e.target.value)}
+                  placeholder="ex. Proche de la ville, Guides professionnels..."
+                  className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && newWhyChoose.trim()) {
+                      e.preventDefault();
+                      setWhyChoose([...whyChoose, newWhyChoose.trim()]);
+                      setNewWhyChoose('');
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => { if (newWhyChoose.trim()) { setWhyChoose([...whyChoose, newWhyChoose.trim()]); setNewWhyChoose(''); } }}
+                  disabled={!newWhyChoose.trim()}
+                  size="sm"
+                  variant="outline"
+                  className="rounded-lg"
+                >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>

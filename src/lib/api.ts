@@ -310,6 +310,8 @@ export interface Trip {
   price_local: number;
   region: 'kinshasa' | 'kongo_central';
   image?: string;
+  ideal_for?: string[];
+  why_choose?: string[];
   status: 'active' | 'inactive';
   sort_order: number;
   created_at: string;
@@ -329,6 +331,8 @@ export interface CreateTripDto {
   price_local: number;
   region: 'kinshasa' | 'kongo_central';
   image?: string;
+  ideal_for?: string[];
+  why_choose?: string[];
   sort_order?: number;
   destination_ids?: string[];
 }
@@ -344,6 +348,8 @@ export interface UpdateTripDto {
   price_local?: number;
   region?: 'kinshasa' | 'kongo_central';
   image?: string;
+  ideal_for?: string[];
+  why_choose?: string[];
   sort_order?: number;
   destination_ids?: string[];
 }

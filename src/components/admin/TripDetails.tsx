@@ -16,7 +16,9 @@ import {
   Pencil,
   RotateCcw,
   CheckCircle,
+  CheckCircle2,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 
 interface TripDetailsProps {
@@ -151,6 +153,40 @@ export function TripDetails({ open, onClose, trip, onEdit, onReactivate, isReact
                     <span className="font-bold text-gray-500 w-28 shrink-0">{item.time}</span>
                     <span className="text-gray-700">{item.fr || item.en || (typeof item === 'string' ? item : JSON.stringify(item))}</span>
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Ideal For */}
+          {trip.ideal_for && trip.ideal_for.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-blue-500" />
+                <h3 className="font-bold text-gray-900">Idéal pour</h3>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {trip.ideal_for.map((item, idx) => (
+                  <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Why Choose */}
+          {trip.why_choose && trip.why_choose.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <h3 className="font-bold text-gray-900">Pourquoi choisir ?</h3>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {trip.why_choose.map((item, idx) => (
+                  <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                    {item}
+                  </span>
                 ))}
               </div>
             </div>
