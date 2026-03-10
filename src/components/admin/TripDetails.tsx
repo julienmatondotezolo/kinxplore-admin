@@ -128,36 +128,6 @@ export function TripDetails({ open, onClose, trip, onEdit, onReactivate, isReact
             </div>
           </div>
 
-          {/* Included Items */}
-          {trip.included_items && trip.included_items.length > 0 && (
-            <div>
-              <h3 className="font-bold text-gray-900 mb-2">What's Included</h3>
-              <div className="space-y-1">
-                {trip.included_items.map((item: any, index: number) => (
-                  <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                    <span>{item.fr || item.en || (typeof item === 'string' ? item : JSON.stringify(item))}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Program */}
-          {trip.program && trip.program.length > 0 && (
-            <div>
-              <h3 className="font-bold text-gray-900 mb-2">Program</h3>
-              <div className="space-y-2">
-                {trip.program.map((item: any, index: number) => (
-                  <div key={index} className="flex gap-3 text-sm">
-                    <span className="font-bold text-gray-500 w-28 shrink-0">{item.time}</span>
-                    <span className="text-gray-700">{item.fr || item.en || (typeof item === 'string' ? item : JSON.stringify(item))}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Ideal For */}
           {trip.ideal_for && trip.ideal_for.length > 0 && (
             <div>
@@ -187,6 +157,36 @@ export function TripDetails({ open, onClose, trip, onEdit, onReactivate, isReact
                   <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
                     {item}
                   </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Included Items */}
+          {trip.included_items && trip.included_items.length > 0 && (
+            <div>
+              <h3 className="font-bold text-gray-900 mb-2">What's Included</h3>
+              <div className="space-y-1">
+                {trip.included_items.map((item: any, index: number) => (
+                  <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+                    <span>{item.fr || item.en || (typeof item === 'string' ? item : JSON.stringify(item))}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Program */}
+          {trip.program && trip.program.length > 0 && (
+            <div>
+              <h3 className="font-bold text-gray-900 mb-2">Program</h3>
+              <div className="space-y-2">
+                {trip.program.map((item: any, index: number) => (
+                  <div key={index} className="flex gap-3 text-sm">
+                    <span className="font-bold text-gray-500 w-28 shrink-0">{item.time}</span>
+                    <span className="text-gray-700">{item.fr || item.en || (typeof item === 'string' ? item : JSON.stringify(item))}</span>
+                  </div>
                 ))}
               </div>
             </div>
