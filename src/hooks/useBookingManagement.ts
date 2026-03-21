@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
+import { api } from '@/lib/api';
 
 export interface BookingTask {
   id: string;
@@ -84,18 +85,8 @@ export function useBookingManagement() {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          destination:destinations(id, name, image, location),
-          user:profiles!bookings_user_id_fkey(id, email, full_name, phone),
-          assigned_admin:profiles!bookings_assigned_to_fkey(id, email, full_name)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setBookings(data as BookingTask[]);
+      const { data } = await api.get('/bookings/admin/all');
+      setBookings((data.bookings || data) as BookingTask[]);
     } catch (err: any) {
       setError(err.message);
       console.error('Error loading bookings:', err);
@@ -108,40 +99,8 @@ export function useBookingManagement() {
     if (!isAdmin) return;
 
     try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('status, priority, created_at, total_price');
-
-      if (error) throw error;
-
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const thisWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      const stats: BookingStatistics = {
-        total: data.length,
-        byStatus: {
-          pending: data.filter(b => b.status === 'pending').length,
-          confirmed: data.filter(b => b.status === 'confirmed').length,
-          cancelled: data.filter(b => b.status === 'cancelled').length,
-          completed: data.filter(b => b.status === 'completed').length,
-        },
-        byPriority: {
-          low: data.filter(b => b.priority === 'low').length,
-          medium: data.filter(b => b.priority === 'medium').length,
-          high: data.filter(b => b.priority === 'high').length,
-          urgent: data.filter(b => b.priority === 'urgent').length,
-        },
-        newToday: data.filter(b => new Date(b.created_at) >= today).length,
-        newThisWeek: data.filter(b => new Date(b.created_at) >= thisWeek).length,
-        newThisMonth: data.filter(b => new Date(b.created_at) >= thisMonth).length,
-        totalRevenue: data
-          .filter(b => b.status !== 'cancelled')
-          .reduce((sum, b) => sum + Number(b.total_price), 0),
-      };
-
-      setStatistics(stats);
+      const { data } = await api.get('/bookings/admin/statistics');
+      setStatistics(data as BookingStatistics);
     } catch (err: any) {
       console.error('Error loading statistics:', err);
     }
@@ -154,7 +113,7 @@ export function useBookingManagement() {
     }
   }, [isAdmin, loadBookings, loadStatistics]);
 
-  // Real-time subscription for new bookings
+  // Real-time subscription for new bookings (keep Supabase realtime — it's client-side only)
   useEffect(() => {
     if (!isAdmin) return;
 
@@ -167,8 +126,7 @@ export function useBookingManagement() {
           schema: 'public',
           table: 'bookings',
         },
-        (payload) => {
-          console.log('New booking received:', payload);
+        () => {
           setNewBookingCount(prev => prev + 1);
           loadBookings();
           loadStatistics();
@@ -203,26 +161,7 @@ export function useBookingManagement() {
     }
   ) => {
     try {
-      const updateData: any = { ...updates };
-      
-      if (updates.status) {
-        updateData.last_status_change_by = user?.id;
-        updateData.last_status_change_at = new Date().toISOString();
-      }
-
-      const { data, error } = await supabase
-        .from('bookings')
-        .update(updateData)
-        .eq('id', bookingId)
-        .select(`
-          *,
-          destination:destinations(id, name, image, location),
-          user:profiles!bookings_user_id_fkey(id, email, full_name, phone),
-          assigned_admin:profiles!bookings_assigned_to_fkey(id, email, full_name)
-        `)
-        .single();
-
-      if (error) throw error;
+      const { data } = await api.put(`/bookings/admin/${bookingId}`, updates);
 
       // Update local state
       setBookings(prev =>
@@ -240,13 +179,7 @@ export function useBookingManagement() {
 
   const deleteBooking = async (bookingId: string) => {
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .delete()
-        .eq('id', bookingId);
-
-      if (error) throw error;
-
+      await api.delete(`/bookings/admin/${bookingId}`);
       setBookings(prev => prev.filter(b => b.id !== bookingId));
       await loadStatistics();
     } catch (err: any) {

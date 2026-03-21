@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, UserProfile } from '@/lib/supabase';
+import { UserProfile } from '@/lib/supabase';
 import { useAuth } from './useAuth';
+import { api } from '@/lib/api';
 
 export function useAdminUsers() {
   const { isAdmin } = useAuth();
@@ -19,12 +20,7 @@ export function useAdminUsers() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { data } = await api.get('/auth/admin/users');
       setUsers(data as UserProfile[]);
     } catch (err: any) {
       setError(err.message);
@@ -36,14 +32,7 @@ export function useAdminUsers() {
 
   const updateUserRole = async (userId: string, role: 'user' | 'admin') => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({ role })
-        .eq('id', userId)
-        .select()
-        .single();
-
-      if (error) throw error;
+      const { data } = await api.put(`/auth/admin/users/${userId}/role`, { role });
 
       // Reload users
       await loadUsers();

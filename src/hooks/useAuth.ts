@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase, UserProfile } from '@/lib/supabase';
 import { User, Session } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -18,7 +19,7 @@ export function useAuth() {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        loadProfile(session.user.id);
+        loadProfile();
       } else {
         setLoading(false);
       }
@@ -31,7 +32,7 @@ export function useAuth() {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        loadProfile(session.user.id);
+        loadProfile();
       } else {
         setProfile(null);
         setLoading(false);
@@ -41,16 +42,9 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadProfile = async (userId: string) => {
+  const loadProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      
+      const { data } = await api.get('/auth/profile');
       const profileData = data as UserProfile;
       setProfile(profileData);
 
@@ -74,15 +68,16 @@ export function useAuth() {
 
     if (error) throw error;
 
-    // Check if user is admin
+    // Check if user is admin via backend
     if (data.user) {
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single();
-
-      if (profileError || !profileData || profileData.role !== 'admin') {
+      try {
+        const { data: adminCheck } = await api.get('/auth/check-admin');
+        if (!adminCheck?.isAdmin) {
+          await supabase.auth.signOut();
+          throw new Error('Admin access required');
+        }
+      } catch (err: any) {
+        if (err.message === 'Admin access required') throw err;
         await supabase.auth.signOut();
         throw new Error('Admin access required');
       }

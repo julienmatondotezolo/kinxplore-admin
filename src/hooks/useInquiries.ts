@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 
 export interface TripInquiry {
   id: string;
@@ -27,12 +28,7 @@ export function useInquiries() {
   const fetchInquiries = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error: fetchError } = await supabase
-        .from('trip_inquiries')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (fetchError) throw fetchError;
+      const { data } = await api.get('/admin/inquiries');
       setInquiries(data || []);
       setError(null);
     } catch (err) {
@@ -45,6 +41,7 @@ export function useInquiries() {
   useEffect(() => {
     fetchInquiries();
 
+    // Keep realtime subscription for live updates
     const channel = supabase
       .channel('trip_inquiries_changes')
       .on(

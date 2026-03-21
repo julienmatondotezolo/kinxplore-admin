@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
+import { api } from '@/lib/api';
 
 export interface Booking {
   id: string;
@@ -48,17 +48,8 @@ export function useAdminBookings() {
   const loadBookings = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          destination:destinations(id, name, image, location),
-          user:profiles(id, email, full_name, phone)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setBookings(data as Booking[]);
+      const { data } = await api.get('/bookings/admin/all');
+      setBookings((data.bookings || data) as Booking[]);
     } catch (err: any) {
       setError(err.message);
       console.error('Error loading bookings:', err);
@@ -72,18 +63,8 @@ export function useAdminBookings() {
     status: 'pending' | 'confirmed' | 'cancelled' | 'completed',
   ) => {
     try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .update({ status })
-        .eq('id', bookingId)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Reload bookings
+      const { data } = await api.put(`/bookings/admin/${bookingId}/status`, { status });
       await loadBookings();
-
       return data as Booking;
     } catch (err: any) {
       setError(err.message);
@@ -93,14 +74,7 @@ export function useAdminBookings() {
 
   const deleteBooking = async (bookingId: string) => {
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .delete()
-        .eq('id', bookingId);
-
-      if (error) throw error;
-
-      // Reload bookings
+      await api.delete(`/bookings/admin/${bookingId}`);
       await loadBookings();
     } catch (err: any) {
       setError(err.message);
